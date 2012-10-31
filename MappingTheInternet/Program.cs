@@ -7,6 +7,8 @@ namespace MappingTheInternet
     {
         static void Main(string[] args)
         {
+            Analyzer.Analyze();
+
             var predictions = Predictor.Predict();
 
             OutputResult(predictions);

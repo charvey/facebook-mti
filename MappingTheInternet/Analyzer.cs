@@ -10,6 +10,7 @@ namespace MappingTheInternet
     {
         public static void Analyze()
         {
+            HashNumberNames();
             NameAnalysis1();
             NameAnalysis2();
         }
@@ -17,6 +18,22 @@ namespace MappingTheInternet
         public static void HashNumberNames()
         {
             var numberNames = new HashSet<string>();
+            var hashNumberNames = new HashSet<string>();
+            int val;
+
+            var everyName = Enumerable.Range(0, 15).SelectMany(i => InputData.Trains(i)).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l=>l.Split('|'))).Select(s=>s.Trim());
+
+            foreach (var name in everyName)
+            {
+                if (int.TryParse(name, out val))
+                {
+                    numberNames.Add(name);
+                    hashNumberNames.Add(NodeNameGrouper.HashName(name));
+                }
+            }
+
+            Logger.Log(numberNames.Count + " names are numbers");
+            Logger.Log(hashNumberNames.Count + " unique number name hashes");
         }
 
         public static void NameAnalysis1()
