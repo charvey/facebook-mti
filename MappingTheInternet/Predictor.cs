@@ -32,10 +32,17 @@ namespace MappingTheInternet
 
             foreach (int i in Enumerable.Range(0, InputData.Paths.Length))
             {
-                
+                var prediction = PredictPath(i);
+                predictions[i] = prediction;
             }
 
             return predictions;
+        }
+
+        private double[] PredictPath(int i)
+        {
+            double x= i/10000.0;
+            return new[] { 15 + x, 16 + x, 17 + x, 18 + x, 19 + x };
         }
 
         private void BuildGraph()
@@ -70,7 +77,7 @@ namespace MappingTheInternet
 
         private double[][] EmptyPredictions()
         {
-            return Enumerable.Repeat((Object)null, 5).Select((o) => new double[InputData.Paths.Length]).ToArray();
+            return Enumerable.Repeat((Object)null, InputData.Paths.Length).Select((o) => new double[5]).ToArray();
         }
     }
 }
