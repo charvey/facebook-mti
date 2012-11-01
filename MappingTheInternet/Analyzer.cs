@@ -31,7 +31,7 @@ namespace MappingTheInternet
             var hashNumberNames = new HashSet<string>();
             int val;
 
-            var everyName = Enumerable.Range(0, 15).SelectMany(i => InputData.Trains(i)).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l=>l.Split('|'))).Select(s=>s.Trim());
+            var everyName = InputData.TrainingSets.SelectMany(s=>s).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l=>l.Split('|'))).Select(s=>s.Trim());
 
             var hash23689 = "";
             foreach (var name in everyName.Distinct())
@@ -87,7 +87,7 @@ namespace MappingTheInternet
             for (int i = 0; i < 15; i++)
             {
                 names[i + 1] = new SortedSet<string>();
-                lines = InputData.Trains(i);
+                lines = InputData.TrainingSets[i];
 
                 foreach (var line in lines.Select(l => l.Split('|')))
                 {
@@ -115,7 +115,7 @@ namespace MappingTheInternet
 
             for (int i = 0; i < 15; i++)
             {
-                foreach (var names in InputData.Trains(i).Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
+                foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
                 {
                     foreach (var name in names.Take(2))
                     {

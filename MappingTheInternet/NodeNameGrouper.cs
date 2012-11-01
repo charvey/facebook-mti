@@ -23,7 +23,7 @@ namespace MappingTheInternet
 
             for (int i = 0; i < 15; i++)
             {
-                lines = InputData.Trains(i);
+                lines = InputData.TrainingSets[i];
 
                 foreach (var line in lines.Select(l => l.Split('|')))
                 {

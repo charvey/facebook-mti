@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 
 namespace MappingTheInternet
 {
@@ -18,15 +19,18 @@ namespace MappingTheInternet
             }
         }
 
-        private static string[][] _trains = new string[15][];
-        public static string[] Trains(int i)
+        private static string[][] _trainingSets;
+        public static string[][] TrainingSets
         {
-            if (_trains[i] == null)
+            get
             {
-                _trains[i] = File.ReadAllLines("data/train/train" + (i+1) + ".txt");
-            }
+                if (_trainingSets == null)
+                {
+                    _trainingSets = Enumerable.Range(0, 15).Select(i => File.ReadAllLines("data/train/train" + (i + 1) + ".txt")).ToArray();
+                }
 
-            return _trains[i];
+                return _trainingSets;
+            }
         }
     }
 }

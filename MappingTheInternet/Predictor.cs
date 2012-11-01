@@ -42,7 +42,7 @@ namespace MappingTheInternet
         {
             for (int i = 0; i < 15; i++)
             {
-                foreach (var names in InputData.Trains(i).Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
+                foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
                 {
                     foreach (var name in names.Take(2))
                     {
