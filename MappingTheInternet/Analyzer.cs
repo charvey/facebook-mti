@@ -1,8 +1,6 @@
-﻿using System;
+﻿using MappingTheInternet.Graph;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MappingTheInternet
 {
@@ -24,7 +22,7 @@ namespace MappingTheInternet
 
         public static void HashNames()
         {
-            Logger.Log("\"FPUA - Communications\" becomes \"" + HashName("FPUA - Communications") + "\"");
+            Logger.Log("\"FPUA - Communications\" becomes \"" + NodeNameGrouper.HashName("FPUA - Communications") + "\"");
         }
 
         public static void HashNumberNames()
@@ -35,14 +33,22 @@ namespace MappingTheInternet
 
             var everyName = Enumerable.Range(0, 15).SelectMany(i => InputData.Trains(i)).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l=>l.Split('|'))).Select(s=>s.Trim());
 
-            foreach (var name in everyName)
+            var hash23689 = "";
+            foreach (var name in everyName.Distinct())
             {
                 if (int.TryParse(name, out val))
                 {
                     numberNames.Add(name);
-                    hashNumberNames.Add(NodeNameGrouper.HashName(name));
+                    var hash = NodeNameGrouper.HashName(name);
+                    hashNumberNames.Add(hash);
+
+                    if (hash == "|23689")
+                    {
+                        hash23689 += (hash23689 == "" ? "" : ",") + "\"" + name + "\"";
+                    }
                 }
             }
+            Logger.Log("The following have hash \"|23689\": " + hash23689);
 
             Logger.Log(numberNames.Count + " names are numbers");
             Logger.Log(hashNumberNames.Count + " unique number name hashes");
@@ -54,15 +60,13 @@ namespace MappingTheInternet
 
             Logger.Log("Longest name is " + nodeNames.Max(n => n.Key.Length) + " characters long");
 
-            var alphabet = nodeNames.Keys.SelectMany(s => s.AsEnumerable()).Distinct();
+            var alphabet = nodeNames.Keys.SelectMany(s => s.AsEnumerable()).Distinct().OrderBy(c => c);
 
             Logger.Log(alphabet.Count() + " characters in alphabet \"" + alphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");
 
             var reducedAlphabet = nodeNames.Keys.SelectMany(s => s.ToLower().Where(c => 'a' <= c && c <= 'z')).Distinct().OrderBy(c => c);
 
-            Logger.Log(reducedAlphabet.Count() + " characters in alphabet \"" + reducedAlphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");
-
-            
+            Logger.Log(reducedAlphabet.Count() + " characters in alphabet \"" + reducedAlphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");            
         }
 
         public static void NameAnalysis2()
@@ -160,7 +164,7 @@ namespace MappingTheInternet
                 InputData.Paths.Where(l => !string.IsNullOrEmpty(l)).Min(l => l.Count(c => c == '|') + 1) +
                 " to " +
                 InputData.Paths.Max(l => l.Count(c => c == '|') + 1));
-            Logger.Log(InputData.Paths.Where(l => l.Count(c => c == '|') == 0).Aggregate("", (c, l) => c + '\n' + l));
+            Logger.Log(InputData.Paths.Where(l => l.Count(c => c == '|') == 0).Aggregate("", (c, l) => c + '|' + l).Remove(0,1));
         }
     }
 }
