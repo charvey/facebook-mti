@@ -122,8 +122,7 @@ namespace MappingTheInternet
                     {
                         if (NodeNameMapper.Get(name) == null)
                         {
-                            var node = new Node<ASNode, ConnectionSchedule>(new ASNode(name));
-                            NodeNameMapper.Set(name, node);
+                            var node = NodeNameMapper.Create(name);
                             Graph.AddNode(node);
                         }
                     }

@@ -18,23 +18,18 @@ namespace MappingTheInternet
             Logger.Log("Loading names");
 
             var nodeNames = new Dictionary<string, int>();
-            string[] lines;
             Func<string, int> add = (n) => nodeNames[n] = (nodeNames.ContainsKey(n) ? nodeNames[n] : 0) + 1;
 
-            for (int i = 0; i < 15; i++)
+            foreach (var trainingSet in InputData.TrainingSets)
             {
-                lines = InputData.TrainingSets[i];
-
-                foreach (var line in lines.Select(l => l.Split('|')))
+                foreach (var line in trainingSet.Select(l => l.Split('|')))
                 {
                     add(line[0].Trim());
                     add(line[1].Trim());
                 }
             }
 
-            lines = InputData.Paths;
-
-            foreach (var line in lines.Select(l => l.Split('|')))
+            foreach (var line in InputData.Paths.Select(l => l.Split('|')))
             {
                 foreach (var name in line)
                 {

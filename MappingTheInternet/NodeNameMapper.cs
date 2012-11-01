@@ -41,5 +41,10 @@ namespace MappingTheInternet
                 _nodeNameGroups.Remove(n);
             }
         }
+
+        public Node<ASNode, ConnectionSchedule> Create(string name)
+        {
+            return new Node<ASNode, ConnectionSchedule>(new ASNode(name));
+        }
     }
 }
