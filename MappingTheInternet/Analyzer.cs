@@ -1,4 +1,5 @@
 ﻿using MappingTheInternet.Graph;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,6 +19,7 @@ namespace MappingTheInternet
             Edges();
 
             PathLengths();
+            SinglePaths();
         }
 
         public void HashNames()
@@ -165,6 +167,16 @@ namespace MappingTheInternet
                 " to " +
                 InputData.Paths.Max(l => l.Count(c => c == '|') + 1));
             Logger.Log(InputData.Paths.Where(l => l.Count(c => c == '|') == 0).Aggregate("", (c, l) => c + '|' + l).Remove(0,1));
+        }
+
+        public void SinglePaths()
+        {
+            var singlePaths = InputData.Paths.Select((p, i) => new Tuple<int, string>(i, p)).Where(p => p.Item2.Count(c => c == '|') == 0).ToList();
+            Logger.Log("There are " + singlePaths.Count + " paths with a single node.");
+            foreach (var singlePath in singlePaths)
+            {
+                Logger.Log(string.Format("{0}. {1}", singlePath.Item1, singlePath.Item2));
+            }
         }
     }
 }
