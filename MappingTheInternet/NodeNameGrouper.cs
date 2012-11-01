@@ -44,7 +44,14 @@ namespace MappingTheInternet
 
         private static HashSet<string[]> ReduceNames(Dictionary<string, int> nodeNames)
         {
-            return new HashSet<string[]>(nodeNames.Select(n => new []{n.Key}));
+            Logger.Log("Reducing names");
+
+            var groupings = nodeNames.GroupBy(n => HashName(n.Key));
+            var groups = groupings.Select(g => g.Select(n => n.Key).ToArray());
+
+            Logger.Log("Names reduced to "+groups.Count()+" groups");
+
+            return new HashSet<string[]>(groups);
         }
 
         public static string HashName(string name)
