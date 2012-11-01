@@ -7,9 +7,13 @@ namespace MappingTheInternet
     {
         static void Main(string[] args)
         {
-            Analyzer.Analyze();
+            #if DEBUG
+            var analyzer = new Analyzer();
+            analyzer.Analyze();
+            #endif
 
-            var predictions = Predictor.Predict();
+            var predictor = new Predictor();
+            var predictions = predictor.Predict();
 
             OutputResult(predictions);
 

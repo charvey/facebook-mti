@@ -4,30 +4,58 @@ using System.Linq;
 
 namespace MappingTheInternet
 {
-    public static class Predictor
+    public class Predictor
     {
-        public static double[][] Predict()
+        private NodeNameMapper _nodeNameMapper;
+        protected NodeNameMapper NodeNameMapper
         {
-            var nodeNameMapper = new NodeNameMapper();
+            get
+            {
+                return _nodeNameMapper ?? (_nodeNameMapper = new NodeNameMapper());
+            }
+        }
 
-            var graph = new Graph<ASNode, ConnectionSchedule>();
+        private Graph<ASNode, ConnectionSchedule> _graph;
+        protected Graph<ASNode, ConnectionSchedule> Graph
+        {
+            get
+            {
+                return _graph ?? (_graph = new Graph<ASNode, ConnectionSchedule>());
+            }
+        }
 
+        public double[][] Predict()
+        {
+            BuildGraph();
+
+            double[][] predictions = EmptyPredictions();
+
+            foreach (int i in Enumerable.Range(0, InputData.Paths.Length))
+            {
+                
+            }
+
+            return predictions;
+        }
+
+        private void BuildGraph()
+        {
             for (int i = 0; i < 15; i++)
             {
-                foreach (var names in InputData.Trains(i).Select(s=>s.Split('|').Select(n=>n.Trim()).ToArray()))
+                foreach (var names in InputData.Trains(i).Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
                 {
                     foreach (var name in names.Take(2))
                     {
-                        if (nodeNameMapper.Get(name) == null)
+                        if (NodeNameMapper.Get(name) == null)
                         {
                             var node = new Node<ASNode, ConnectionSchedule>(new ASNode(name));
-                            nodeNameMapper.Set(name, node);
-                            graph.AddNode(node);
+                            NodeNameMapper.Set(name, node);
+                            Graph.AddNode(node);
                         }
                     }
 
-                    var from = nodeNameMapper.Get(names[0]);
-                    var to = nodeNameMapper.Get(names[1]);
+                    var from = NodeNameMapper.Get(names[0]);
+                    var to = NodeNameMapper.Get(names[1]);
 
                     var edge = from.GetEdge(to);
                     if (edge == null)
@@ -38,10 +66,11 @@ namespace MappingTheInternet
                     edge.Value.Schedule[i] = double.Parse(names[2]);
                 }
             }
+        }
 
-            double[][] predictions = Enumerable.Repeat((Object)null, 5).Select((o) => new double[10000]).ToArray();
-
-            return predictions;
+        private double[][] EmptyPredictions()
+        {
+            return Enumerable.Repeat((Object)null, 5).Select((o) => new double[InputData.Paths.Length]).ToArray();
         }
     }
 }

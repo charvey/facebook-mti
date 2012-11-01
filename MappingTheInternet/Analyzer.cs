@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace MappingTheInternet
 {
-    public static class Analyzer
+    public class Analyzer
     {
-        public static void Analyze()
+        public void Analyze()
         {
             HashNames();
 
@@ -20,12 +20,12 @@ namespace MappingTheInternet
             PathLengths();
         }
 
-        public static void HashNames()
+        public void HashNames()
         {
             Logger.Log("\"FPUA - Communications\" becomes \"" + NodeNameGrouper.HashName("FPUA - Communications") + "\"");
         }
 
-        public static void HashNumberNames()
+        public void HashNumberNames()
         {
             var numberNames = new HashSet<string>();
             var hashNumberNames = new HashSet<string>();
@@ -54,7 +54,7 @@ namespace MappingTheInternet
             Logger.Log(hashNumberNames.Count + " unique number name hashes");
         }
 
-        public static void NameAnalysis1()
+        public void NameAnalysis1()
         {
             var nodeNames = NodeNameGrouper.NodeNames();
 
@@ -69,7 +69,7 @@ namespace MappingTheInternet
             Logger.Log(reducedAlphabet.Count() + " characters in alphabet \"" + reducedAlphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");            
         }
 
-        public static void NameAnalysis2()
+        public void NameAnalysis2()
         {
             string[] lines;
             var names = new SortedSet<string>[16];
@@ -107,7 +107,7 @@ namespace MappingTheInternet
             Logger.Log("The training and path sets have " + trainingCommonNames.Intersect(names[0]).Count() + " names in common");
         }
 
-        public static void Edges()
+        public void Edges()
         {
             var nodeNameMapper = new NodeNameMapper();
 
@@ -157,7 +157,7 @@ namespace MappingTheInternet
             Logger.Log(stableConnection + " nodes point to a stable connection");
         }
 
-        public static void PathLengths()
+        public void PathLengths()
         {
             Logger.Log(
                 "Path lengths range from " +
