@@ -31,7 +31,7 @@ namespace MappingTheInternet
 
             double[][] predictions = EmptyPredictions();
 
-            foreach (int i in Enumerable.Range(0, InputData.Paths.Length))
+            foreach (int i in Enumerable.Range(0, 1/*InputData.Paths.Length*/))
             {
                 var prediction = PredictPath(i);
                 predictions[i] = prediction;
@@ -69,18 +69,28 @@ namespace MappingTheInternet
             return length + PathLength(path.Skip(1).ToArray(), time);
         }
 
+        private class SearchNode
+        {
+            public Node<ASNode, ConnectionSchedule> Node;
+            public double Distance;
+        }
+
         private double OptimumLength(Node<ASNode, ConnectionSchedule> from, Node<ASNode, ConnectionSchedule> to, int time)
         {
-            var unvisitedNodes = new Dictionary<Node<ASNode, ConnectionSchedule>, double>();
+            var unvisitedNodes = new LinkedList<SearchNode>();
+            var unvisitedNodesMap = new Dictionary<Node<ASNode,ConnectionSchedule>,SearchNode>();
             var visitedNodes= new Dictionary<Node<ASNode,ConnectionSchedule>,double>();
-            unvisitedNodes[from] = 0;
-            KeyValuePair<Node<ASNode, ConnectionSchedule>, double> current;
+
+            SearchNode current = new SearchNode{Node=from,Distance=0};
+
+            unvisitedNodes.AddFirst(current);
+            unvisitedNodesMap[from]=current;           
 
             do
             {
-                current = unvisitedNodes.AsEnumerable().OrderBy(kvp => kvp.Value).First();
+                current = unvisitedNodes.First.Value;
 
-                foreach (var e in current.Key.Edges)
+                foreach (var e in current.Node.Edges)
                 {
                     var dist = e.Value.Value.Schedule[time];
 
@@ -90,20 +100,23 @@ namespace MappingTheInternet
                         {
                             continue;
                         }
-                        if (!unvisitedNodes.ContainsKey(e.Key))
+                        if (!unvisitedNodesMap.ContainsKey(e.Key))
                         {
-                            unvisitedNodes[e.Key] = double.PositiveInfinity;
+                            var newNode = new SearchNode{Node=e.Key,Distance=double.PositiveInfinity};
+                            unvisitedNodes.AddLast(newNode);
+                            unvisitedNodesMap[e.Key] = newNode;
                         }
 
-                        if (current.Value + dist <= unvisitedNodes[e.Key])
+                        if (current.Distance + dist <= unvisitedNodesMap[e.Key].Distance)
                         {
-                            unvisitedNodes[e.Key] = current.Value + dist;
+                            unvisitedNodesMap[e.Key].Distance = current.Distance + dist;
                         }
                     }
                 }
 
-                visitedNodes[current.Key] = current.Value;
-                unvisitedNodes.Remove(current.Key);
+                visitedNodes.Add(current.Node, current.Distance);
+                unvisitedNodes.RemoveFirst();
+                unvisitedNodesMap.Remove(current.Node);
             } while (!visitedNodes.ContainsKey(to) && unvisitedNodes.Count > 0);
 
             return visitedNodes[to];
