@@ -39,22 +39,6 @@ namespace MappingTheInternet
                 }
             }
 
-            var changers = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Any(s => s == 0) && e.Value.Value.Schedule.Any(s => s == 1)));
-
-            Logger.Log(changers + " nodes have edges which change weights");
-
-            var stablePeers = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0)));
-
-            Logger.Log(stablePeers + " nodes point to a stable peer");
-
-            var stableCosts = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 1)));
-
-            Logger.Log(stableCosts + " nodes point to a stable costly connection");
-
-            var stableConnection = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d==0||d == 1)));
-
-            Logger.Log(stableConnection + " nodes point to a stable connection");
-
             double[][] predictions = Enumerable.Repeat((Object)null, 5).Select((o) => new double[10000]).ToArray();
 
             return predictions;
