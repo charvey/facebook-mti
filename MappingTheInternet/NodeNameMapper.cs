@@ -44,7 +44,9 @@ namespace MappingTheInternet
 
         public Node<ASNode, ConnectionSchedule> Create(string name)
         {
-            return new Node<ASNode, ConnectionSchedule>(new ASNode(name));
+            //TODO make most popular name
+            Set(name, new Node<ASNode, ConnectionSchedule>(new ASNode(name)));
+            return Get(name);
         }
     }
 }

@@ -42,9 +42,10 @@ namespace MappingTheInternet
 
         private double[] PredictPath(int i)
         {
-            var path =ToPath(InputData.Paths[i]);
-            double x = Enumerable.Range(0, 15).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).Average();
-            return new[] { 15 + x, 16 + x, 17 + x, 18 + x, 19 + x };
+            var path = ToPath(InputData.Paths[i]);
+            double[] pastRecord = Enumerable.Range(0, 15).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).ToArray();
+            double average = pastRecord.Average();
+            return new[] { average, average, average, average, average };
         }
 
         private Node<ASNode, ConnectionSchedule>[] ToPath(string path)
@@ -61,6 +62,7 @@ namespace MappingTheInternet
 
             double length=0;
 
+            //TODO determine health of path
             return path.Length;
             throw new NotImplementedException();
 
