@@ -1,5 +1,6 @@
 ﻿using MappingTheInternet.Graph;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MappingTheInternet
@@ -41,8 +42,74 @@ namespace MappingTheInternet
 
         private double[] PredictPath(int i)
         {
-            double x= i/10000.0;
+            var path =ToPath(InputData.Paths[i]);
+            double x = Enumerable.Range(0, 15).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).Average();
             return new[] { 15 + x, 16 + x, 17 + x, 18 + x, 19 + x };
+        }
+
+        private Node<ASNode, ConnectionSchedule>[] ToPath(string path)
+        {
+            return path.Split('|').Select(n => n.Trim()).Select(n => NodeNameMapper.Get(n)).ToArray();
+        }
+
+        private double PathLength(Node<ASNode, ConnectionSchedule>[] path,int time)
+        {
+            if (path.Length == 0)
+            {
+                return 0;
+            }
+
+            double length=0;
+
+            return path.Length;
+            throw new NotImplementedException();
+
+            return length + PathLength(path.Skip(1).ToArray(), time);
+        }
+
+        private double OptimumLength(Node<ASNode, ConnectionSchedule> from, Node<ASNode, ConnectionSchedule> to, int time)
+        {
+            var unvisitedNodes = new Dictionary<Node<ASNode, ConnectionSchedule>, double>();
+            var visitedNodes= new Dictionary<Node<ASNode,ConnectionSchedule>,double>();
+            unvisitedNodes[from] = 0;
+            KeyValuePair<Node<ASNode, ConnectionSchedule>, double> current;
+
+            do
+            {
+                current = unvisitedNodes.AsEnumerable().OrderBy(kvp => kvp.Value).First();
+
+                foreach (var e in current.Key.Edges)
+                {
+                    var dist = e.Value.Value.Schedule[time];
+
+                    if (dist >= 0)
+                    {
+                        if (visitedNodes.ContainsKey(e.Key))
+                        {
+                            continue;
+                        }
+                        if (!unvisitedNodes.ContainsKey(e.Key))
+                        {
+                            unvisitedNodes[e.Key] = double.PositiveInfinity;
+                        }
+
+                        if (current.Value + dist <= unvisitedNodes[e.Key])
+                        {
+                            unvisitedNodes[e.Key] = current.Value + dist;
+                        }
+                    }
+                }
+
+                visitedNodes[current.Key] = current.Value;
+                unvisitedNodes.Remove(current.Key);
+            } while (!visitedNodes.ContainsKey(to) && unvisitedNodes.Count > 0);
+
+            return visitedNodes[to];
+        }
+
+        private bool IsOptimumPath(Node<ASNode, ConnectionSchedule>[] path, int t)
+        {
+            return PathLength(path, t) <= OptimumLength(path.First(), path.Last(), t);
         }
 
         private void BuildGraph()
