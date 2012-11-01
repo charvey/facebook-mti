@@ -56,9 +56,9 @@ namespace MappingTheInternet
 
         public static string HashName(string name)
         {
-            var specialSymbols = name.ToLower().Where(c => c < 'a' || 'z' < c).Distinct().ToArray();
+            var specialSymbols = name.ToLower().Where(c => !(('a' <= c && c <= 'z') || ('0' <= c && c <= '9'))).Distinct().ToArray();
 
-            var words = name.Split(specialSymbols, StringSplitOptions.RemoveEmptyEntries);
+            var words = name.ToUpper().Split(specialSymbols, StringSplitOptions.RemoveEmptyEntries);
 
             var sortedDistinctWords = words.Select(w => new string(w.OrderBy(c => c).ToArray())).Distinct().OrderBy(s => s);
 
