@@ -2,6 +2,7 @@
 using MappingTheInternet.Graph;
 using MappingTheInternet.HashFunctions;
 using MappingTheInternet.Models;
+using MappingTheInternet.ReductionFunctions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -94,8 +95,10 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing data", Logger.TabChange.Increase);
 
-            //HashFunctions();
+            HashFunctions();
             HashNumberNames();
+
+            ReductionFunctions();
 
             NameAnalysis1();
             NameAnalysis2();
@@ -108,6 +111,8 @@ namespace MappingTheInternet
 
             Logger.Log("Data analyzed", Logger.TabChange.Decrease);
         }
+
+        #region Hashes
 
         public void HashFunctions()
         {
@@ -123,7 +128,7 @@ namespace MappingTheInternet
 
                 Logger.Log("Function #" + i + " produces " + results.Length + " unique names");
 
-                File.WriteAllLines("hashfunction_" + i + ".txt", results.Select(group => group.Aggregate(hashes[i - 1].HashName(group.First()) + " (" + group.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
+                File.WriteAllLines("Hash_Function_" + i + ".txt", results.Select(group => group.Aggregate(hashes[i - 1].HashName(group.First()) + " (" + group.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
 
                 Logger.Log("Hash function #" + i + " analyzed", Logger.TabChange.Decrease);
             }
@@ -143,7 +148,7 @@ namespace MappingTheInternet
                 if (int.TryParse(name, out val))
                 {
                     numberNames.Add(name);
-                    var hash = NodeNameGrouper.HashName(name);
+                    var hash = HashFunction.Preferred.HashName(name);
                     hashNumberNames.Add(hash);
 
                     if (hash == "|23689")
@@ -157,6 +162,37 @@ namespace MappingTheInternet
             Logger.Log(numberNames.Count + " names are numbers");
             Logger.Log(hashNumberNames.Count + " unique number name hashes");
         }
+
+        #endregion
+
+        #region Reductions
+
+        public void ReductionFunctions()
+        {
+            Logger.Log("Analyzing reduction functions", Logger.TabChange.Increase);
+
+            var reduces = new IReductionFunction[] { new ReductionFunction1(), new ReductionFunction2() };
+
+            for (int i = 1; i <= reduces.Length; i++)
+            {
+                Logger.Log("Analyzing reduction function #" + i, Logger.TabChange.Increase);
+
+                var names = EveryName.GroupBy(n => n).ToDictionary(g => g.Key, g => g.Count());
+                var results = reduces[i - 1].ReduceNames(names);
+
+                Logger.Log("Function #" + i + " produces " + results.Count() + " groups");
+
+                File.WriteAllLines("Reduction_Function_" + i + ".txt", results.OrderBy(g => g.Count()).Select(group => group.Aggregate("", (c, s) => c + ",\"" + s + "\"").Remove(0, 1)));
+
+                Logger.Log("Reduction function #" + i + " analyzed", Logger.TabChange.Decrease);
+            }
+
+            Logger.Log("Reduction functions analyzed", Logger.TabChange.Decrease);
+        }
+
+        #endregion
+
+        #region Names
 
         public void NameAnalysis1()
         {
@@ -211,6 +247,10 @@ namespace MappingTheInternet
             Logger.Log("The training and path sets have " + trainingCommonNames.Intersect(names[0]).Count() + " names in common");
         }
 
+        #endregion
+
+        #region Edges
+
         public void Edges()
         {
             Logger.Log("Analyzing Edges", Logger.TabChange.Increase);
@@ -233,6 +273,10 @@ namespace MappingTheInternet
 
             Logger.Log("Edges analyzed", Logger.TabChange.Decrease);
         }
+
+        #endregion
+
+        #region Paths
 
         public void BrokenPaths()
         {
@@ -323,5 +367,7 @@ namespace MappingTheInternet
                 Logger.Log(string.Format("{0}. {1}", singlePath.Item1, singlePath.Item2));
             }
         }
+
+        #endregion
     }
 }

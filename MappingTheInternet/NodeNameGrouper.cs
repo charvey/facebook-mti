@@ -1,5 +1,6 @@
 ﻿using MappingTheInternet.Data;
 using MappingTheInternet.HashFunctions;
+using MappingTheInternet.ReductionFunctions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,19 +49,11 @@ namespace MappingTheInternet
         {
             Logger.Log("Reducing names", Logger.TabChange.Increase);
 
-            var groupings = nodeNames.GroupBy(n => HashName(n.Key));
-            var groups = new HashSet<string[]>(groupings.Select(g => g.Select(n => n.Key).ToArray()));
+            var groups = ReductionFunction.Preferred.ReduceNames(nodeNames);
 
             Logger.Log("Names reduced to "+groups.Count+" groups", Logger.TabChange.Decrease);
 
             return groups;
-        }
-
-        private static IHashFunction HashFunction = new HashFunction3();
-
-        public static string HashName(string name)
-        {
-            return HashFunction.HashName(name);
         }
     }
 }

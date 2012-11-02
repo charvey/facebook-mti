@@ -5,6 +5,8 @@ namespace MappingTheInternet.HashFunctions
 {
     public abstract class HashFunction : IHashFunction
     {
+        public static readonly HashFunction Preferred = new HashFunction5();
+
         protected static char[] SpecialSymbols = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".ToCharArray();
 
         protected string sort(string word)
