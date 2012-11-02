@@ -4,6 +4,7 @@ using MappingTheInternet.HashFunctions;
 using MappingTheInternet.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MappingTheInternet
@@ -42,6 +43,8 @@ namespace MappingTheInternet
             for (int i = 1; i <= functions.Length; i++)
             {
                 Logger.Log("Function " + i + " produces " + results[i-1].Length + " unique names");
+
+                File.WriteAllLines("hashfunction_" + i + ".txt", results[i - 1].Select(s => s.Aggregate(functions[i - 1].HashName(s[0]) + " (" + s.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
             }
         }
 
