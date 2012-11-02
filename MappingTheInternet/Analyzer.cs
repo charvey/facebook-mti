@@ -94,7 +94,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing data", Logger.TabChange.Increase);
 
-            HashFunctions();
+            //HashFunctions();
             HashNumberNames();
 
             NameAnalysis1();
@@ -238,7 +238,26 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing broken paths", Logger.TabChange.Increase);
 
-            Dictionary<string, List<string>> missingLinks = new Dictionary<string, List<string>>();
+            var missingLinks = new Dictionary<string, Dictionary<int, Dictionary<string,int>>>();
+
+            Func<string, int, string, bool> add = (from, time, to) =>
+            {
+                if (!missingLinks.ContainsKey(from))
+                {
+                    missingLinks[from] = new Dictionary<int, Dictionary<string, int>>();
+                }
+                if (!missingLinks[from].ContainsKey(time))
+                {
+                    missingLinks[from][time] = new Dictionary<string, int>();
+                }
+                if (!missingLinks[from][time].ContainsKey(to))
+                {
+                    missingLinks[from][time][to] = 0;
+                }
+                missingLinks[from][time][to]++;
+
+                return true;
+            };
 
             foreach (var path in EveryPath)
             {
@@ -246,26 +265,41 @@ namespace MappingTheInternet
                 {
                     if (!path[i - 1].Edges.ContainsKey(path[i]))
                     {
-                        //Logger.Log(path[i - 1].Value.Name + " does not link to " + path[i].Value.Name);
-
-                        if(!missingLinks.ContainsKey(path[i - 1].Value.Name)){
-                            missingLinks[path[i - 1].Value.Name] = new List<string>();
-                        }
-                        missingLinks[path[i - 1].Value.Name].Add(path[i].Value.Name);
+                        add(path[i - 1].Value.Name, int.MinValue, path[i].Value.Name);
                     }
                     else
                     {
                         var edge = path[i - 1].Edges[path[i]];
 
-                        if (edge.Value.Schedule.Take(15).Any(d => d ==double.PositiveInfinity))
+                        for (int t = 0; t < InputData.TrainingSets.Length; t++)
                         {
-                            Logger.Log(path[i - 1].Value.Name + " does not link to " + path[i].Value.Name + " " + edge.Value.Schedule.Take(15).Count(d => d < 0) + " times");
+                            if (edge.Value.Schedule[t] == double.PositiveInfinity)
+                            {
+                                add(path[i - 1].Value.Name, t, path[i].Value.Name);
+                            }
                         }
                     }
                 }
             }
 
-            File.WriteAllText("Missing_Links.txt", missingLinks.Aggregate("", (c, s) => c + s.Key + "\n" + s.Value.OrderBy(w => w).Aggregate("", (ws, w) => ws + "\t" + w + "\n")));
+            var brokenLinks = missingLinks.Sum(froms=>froms.Value.Count);
+            var brokenCases = missingLinks.Sum(froms=>froms.Value.Sum(times=>times.Value.Sum(counts=>counts.Value)));
+
+            Logger.Log(brokenLinks + " broken links found over " + brokenCases + " broken cases");
+
+            File.WriteAllText(
+                "Missing_Links.txt",
+                missingLinks
+                    .OrderByDescending(ml => ml.Value.Sum(times => times.Value.Sum(counts => counts.Value)))
+                    .Aggregate("",
+                        (c, s) =>
+                            c + s.Key + "\n" +
+                            s.Value.OrderBy(w => w.Key)
+                            .Aggregate("", (ws, w) => ws + w.Value.OrderBy(n => n.Key)
+                                .Aggregate("",
+                                    (ns, n) =>
+                                        ns + "[" + (w.Key != int.MinValue ? w.Key.ToString("00") : "!!") + "]" + "[" + n.Value.ToString("000") + "]" + "\t" + n.Key + "\n"
+                            ))));
 
             Logger.Log("Broken paths analyzed", Logger.TabChange.Decrease);
         }

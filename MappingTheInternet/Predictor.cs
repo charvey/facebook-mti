@@ -139,28 +139,23 @@ namespace MappingTheInternet
 
                 foreach (var e in current.Node.Edges)
                 {
-                    var dist = e.Value.Value.Schedule[time];
-
-                    if (dist >= 0)
+                    if (visitedNodes.ContainsKey(e.Key))
                     {
-                        if (visitedNodes.ContainsKey(e.Key))
-                        {
-                            continue;
-                        }
-                        if (!unvisitedNodesMap.ContainsKey(e.Key))
-                        {
-                            var newNode = new SearchNode { Node = e.Key, Distance = double.PositiveInfinity };
-                            unvisitedNodes.AddLast(newNode);
-                            unvisitedNodesMap[e.Key] = newNode;
-                        }
-
-                        if (current.Distance + dist <= unvisitedNodesMap[e.Key].Distance)
-                        {
-                            unvisitedNodesMap[e.Key].Distance = current.Distance + dist;
-                        }
+                        continue;
                     }
-                    else
+
+                    if (!unvisitedNodesMap.ContainsKey(e.Key))
                     {
+                        var newNode = new SearchNode { Node = e.Key, Distance = double.PositiveInfinity };
+                        unvisitedNodes.AddLast(newNode);
+                        unvisitedNodesMap[e.Key] = newNode;
+                    }
+
+                    double dist = e.Value.Value.Schedule[time];
+
+                    if (current.Distance + dist <= unvisitedNodesMap[e.Key].Distance)
+                    {
+                        unvisitedNodesMap[e.Key].Distance = current.Distance + dist;
                     }
                 }
 
