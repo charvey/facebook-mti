@@ -75,7 +75,7 @@ namespace MappingTheInternet
 
                 File.WriteAllLines("hashfunction_" + i + ".txt", results.Select(group => group.Aggregate(hashes[i - 1].HashName(group.First()) + " (" + group.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
 
-                Logger.Log("Hash function #" + i + " analyzed", Logger.TabChange.Increase);
+                Logger.Log("Hash function #" + i + " analyzed", Logger.TabChange.Decrease);
             }
 
             Logger.Log("Hash functions analyzed", Logger.TabChange.Decrease);
