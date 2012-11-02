@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 
-namespace MappingTheInternet
+namespace MappingTheInternet.Data
 {
     public static class InputData
     {

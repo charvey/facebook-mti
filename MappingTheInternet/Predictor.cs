@@ -1,4 +1,6 @@
-﻿using MappingTheInternet.Graph;
+﻿using MappingTheInternet.Data;
+using MappingTheInternet.Graph;
+using MappingTheInternet.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +33,7 @@ namespace MappingTheInternet
 
             double[][] predictions = EmptyPredictions();
 
-            foreach (int i in Enumerable.Range(0, 1/*InputData.Paths.Length*/))
+            foreach (int i in Enumerable.Range(0, InputData.Paths.Length))
             {
                 var prediction = PredictPath(i);
                 predictions[i] = prediction;
@@ -129,6 +131,8 @@ namespace MappingTheInternet
 
         private void BuildGraph()
         {
+            Logger.Log("Building graph");
+
             for (int i = 0; i < 15; i++)
             {
                 foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
@@ -154,6 +158,8 @@ namespace MappingTheInternet
                     edge.Value.Schedule[i] = double.Parse(names[2]);
                 }
             }
+
+            Logger.Log("Graph built with " + Graph.Nodes.Count + " nodes and " + Graph.Nodes.Sum(n => n.Edges.Count) + " edges");
         }
 
         private double[][] EmptyPredictions()

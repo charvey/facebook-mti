@@ -42,65 +42,65 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzer.cs" />
-    <Compile Include="ConnectionSchedule.cs" />
+    <Compile Include="Models\ConnectionSchedule.cs" />
     <Compile Include="Graph\Edge.cs" />
     <Compile Include="Graph\Graph.cs" />
     <Compile Include="Graph\Node.cs" />
-    <Compile Include="InputData.cs" />
+    <Compile Include="Data\InputData.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="ASNode.cs" />
+    <Compile Include="Models\ASNode.cs" />
     <Compile Include="NodeNameGrouper.cs" />
     <Compile Include="NodeNameMapper.cs" />
     <Compile Include="Predictor.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\paths.txt">
+    <Content Include="Data\paths.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train1.txt">
+    <Content Include="Data\train\train1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train10.txt">
+    <Content Include="Data\train\train10.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train11.txt">
+    <Content Include="Data\train\train11.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train12.txt">
+    <Content Include="Data\train\train12.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train13.txt">
+    <Content Include="Data\train\train13.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train14.txt">
+    <Content Include="Data\train\train14.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train15.txt">
+    <Content Include="Data\train\train15.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train2.txt">
+    <Content Include="Data\train\train2.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train3.txt">
+    <Content Include="Data\train\train3.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train4.txt">
+    <Content Include="Data\train\train4.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train5.txt">
+    <Content Include="Data\train\train5.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train6.txt">
+    <Content Include="Data\train\train6.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train7.txt">
+    <Content Include="Data\train\train7.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train8.txt">
+    <Content Include="Data\train\train8.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="data\train\train9.txt">
+    <Content Include="Data\train\train9.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

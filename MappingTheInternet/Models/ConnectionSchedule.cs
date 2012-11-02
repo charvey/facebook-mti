@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace MappingTheInternet
+namespace MappingTheInternet.Models
 {
     public class ConnectionSchedule
     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MappingTheInternet.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -60,6 +61,11 @@ namespace MappingTheInternet
                 return name;
 
             var specialSymbols = name.ToLower().Where(c => !(('a' <= c && c <= 'z') || ('0' <= c && c <= '9'))).Distinct().ToArray();
+
+            foreach (var specialSymbol in specialSymbols)
+            {
+                name = name.Replace("" + specialSymbol, "");
+            }
 
             var words = name.ToUpper().Split(specialSymbols, StringSplitOptions.RemoveEmptyEntries);
 
