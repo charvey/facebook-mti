@@ -1,6 +1,7 @@
 ﻿using MappingTheInternet.HashFunctions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MappingTheInternet.ReductionFunctions
@@ -28,26 +29,45 @@ namespace MappingTheInternet.ReductionFunctions
         public override HashSet<string[]> ReduceNames(Dictionary<string, int> nodeNames)
         {
             var groupings = nodeNames.GroupBy(n => HashFunction.Preferred.HashName(n.Key));
-            var groups = groupings.Select(g => g.Select(n => n.Key)).ToArray();
+            var groups = groupings.Select(g => g.Select(n => n.Key)).OrderBy(g=>g.Count()).ToArray();
             var wordGroupings = groups.ToDictionary(
                 g => HashFunction.Preferred.HashName(g.First()).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries),
                 g => g.Aggregate("", (c, s) => c + "," + s).Remove(0, 1)).ToArray();
 
-            for (int i = 0; i < 1; i++)
+            int limit = 100;
+            File.Delete("Reductions.txt");
+            for (int i = 0; i < wordGroupings.Length; i++)
             {
-                var current = groups.Where(g => g.Count() == 1 && g.Any(s => s.Any(c => c < '0' || '9' < c))).First().Single();
-
-                var words = HashFunction.Preferred.HashName(current).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-
-                for (int j = 0; j < groups.Length; j++)
+                if (wordGroupings[i].Value.All(c => '0' <= c && c <= '9'))
                 {
-                    string[] a = wordGroupings[j].Key, b = words;
+                    continue;
+                }
+                if (groups[i].Count() > 1)
+                {
+                    Logger.Log("All 1 instance items reduced");
+                    break;
+                }
+                if (limit == 0)
+                {
+                    Logger.Log("Limit has been reached");
+                    break;
+                }
 
-                    if (a.Count(w => b.Contains(w)) > a.Length / 2 || b.Count(w => a.Contains(w)) > b.Length / 2)
+                string[] a = wordGroupings[i].Key;
+                for (int j = i + 1; j < groups.Length; j++)
+                {
+                    string[] b = wordGroupings[j].Key;
+
+                    double score = a.Intersect(b).Count() * 1.0 / ((a.Length + b.Length) / 2.0);
+
+                    if (score > .5)
                     {
-                        Logger.Log(string.Format("{0}.{1} ", i, j) + current + " may belong to " + wordGroupings[j].Value);
+                        File.AppendAllText("Reductions.txt", score + " " + wordGroupings[i].Value + " may belong to " + wordGroupings[j].Value + "\n");
+                        //Logger.Log(score + " " + wordGroupings[i].Value + " may belong to " + wordGroupings[j].Value);
                     }
                 }
+
+                limit--;
             }
             
             return new HashSet<string[]>(groups.Select(g=>g.ToArray()));
