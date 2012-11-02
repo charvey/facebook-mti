@@ -3,6 +3,7 @@ using MappingTheInternet.Graph;
 using MappingTheInternet.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MappingTheInternet
@@ -29,15 +30,32 @@ namespace MappingTheInternet
 
         public double[][] Predict()
         {
+            Logger.Log("Predicting future");
+
             BuildGraph();
 
             double[][] predictions = EmptyPredictions();
 
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             foreach (int i in Enumerable.Range(0, InputData.Paths.Length))
             {
                 var prediction = PredictPath(i);
                 predictions[i] = prediction;
+
+                if (i % 100 == 0)
+                {
+                    int p = i / 100;
+                    var elapsed = sw.Elapsed;
+                    var elapsedString = elapsed.ToString(@"hh\:mm\:ss");
+                    var remaining = (i>0)?TimeSpan.FromSeconds(elapsed.TotalSeconds * ((100.0 - p) / p)):TimeSpan.MaxValue;
+                    var remaingString = remaining == TimeSpan.MaxValue ? "N/A" : remaining.ToString(@"hh\:mm\:ss");
+                    Logger.Log(string.Format("{0,2}% of future predicted. Running Time: {1}, Remaining Time: {2}", p, elapsedString, remaingString));
+                }
             }
+            sw.Stop();
+
+            Logger.Log("Future predicted");
 
             return predictions;
         }
