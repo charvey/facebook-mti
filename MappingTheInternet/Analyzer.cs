@@ -11,8 +11,10 @@ namespace MappingTheInternet
 {
     public class Analyzer
     {
+        #region Data
+
         private IEnumerable<string> _everyName;
-        private IEnumerable<string> EveryName
+        protected IEnumerable<string> EveryName
         {
             get
             {
@@ -26,7 +28,7 @@ namespace MappingTheInternet
         }
 
         private IEnumerable<string> _everyDistinctName;
-        private IEnumerable<string> EveryDistinctName
+        protected IEnumerable<string> EveryDistinctName
         {
             get
             {
@@ -39,13 +41,60 @@ namespace MappingTheInternet
             }
         }
 
+        private IEnumerable<Node<ASNode, ConnectionSchedule>[]> _everyPath;
+        protected IEnumerable<Node<ASNode, ConnectionSchedule>[]> EveryPath
+        {
+            get
+            {
+                if (_everyPath == null)
+                {
+                    _everyPath = InputData.Paths.Select(p=>p.Split(new []{'|'},StringSplitOptions.RemoveEmptyEntries).Select(n=>NodeNameMapper.Get(n.Trim())).ToArray()).ToList();
+                }
+
+                return _everyPath;
+            }
+        }
+
+        #endregion
+
+        #region Objects
+
+        private NodeNameMapper _nodeNameMapper;
+        protected NodeNameMapper NodeNameMapper
+        {
+            get
+            {
+                if (_nodeNameMapper == null)
+                {
+                    _nodeNameMapper = new NodeNameMapper();
+                }
+
+                return _nodeNameMapper;
+            }
+        }
+
+        private Graph<ASNode, ConnectionSchedule> _graph;
+        protected Graph<ASNode, ConnectionSchedule> Graph
+        {
+            get
+            {
+                if (_graph == null)
+                {
+                    _graph = GraphBuilder.Build(NodeNameMapper);
+
+                }
+
+                return _graph;
+            }
+        }
+
+        #endregion
+
         public void Analyze()
         {
             Logger.Log("Analyzing data", Logger.TabChange.Increase);
 
             HashFunctions();
-            HashNames();
-
             HashNumberNames();
 
             NameAnalysis1();
@@ -53,6 +102,7 @@ namespace MappingTheInternet
 
             Edges();
 
+            BrokenPaths();
             PathLengths();
             SinglePaths();
 
@@ -63,7 +113,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing hash functions", Logger.TabChange.Increase);
 
-            var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4() };
+            var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4(), new HashFunction5(), new HashFunction6() };
 
             for (int i = 1; i <= hashes.Length; i++)
             {
@@ -80,12 +130,7 @@ namespace MappingTheInternet
 
             Logger.Log("Hash functions analyzed", Logger.TabChange.Decrease);
         }
-
-        public void HashNames()
-        {
-            Logger.Log("\"FPUA - Communications\" becomes \"" + NodeNameGrouper.HashName("FPUA - Communications") + "\"");
-        }
-
+        
         public void HashNumberNames()
         {
             var numberNames = new HashSet<string>();
@@ -168,52 +213,61 @@ namespace MappingTheInternet
 
         public void Edges()
         {
-            var nodeNameMapper = new NodeNameMapper();
+            Logger.Log("Analyzing Edges", Logger.TabChange.Increase);
 
-            var graph = new Graph<ASNode, ConnectionSchedule>();
-
-            for (int i = 0; i < 15; i++)
-            {
-                foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
-                {
-                    foreach (var name in names.Take(2))
-                    {
-                        if (nodeNameMapper.Get(name) == null)
-                        {
-                            var node = new Node<ASNode, ConnectionSchedule>(new ASNode(name));
-                            nodeNameMapper.Set(name, node);
-                            graph.AddNode(node);
-                        }
-                    }
-
-                    var from = nodeNameMapper.Get(names[0]);
-                    var to = nodeNameMapper.Get(names[1]);
-
-                    var edge = from.GetEdge(to);
-                    if (edge == null)
-                    {
-                        edge = new Edge<ConnectionSchedule>(new ConnectionSchedule());
-                        from.AddEdge(to, edge);
-                    }
-                    edge.Value.Schedule[i] = double.Parse(names[2]);
-                }
-            }
-
-            var changers = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Any(s => s == 0) && e.Value.Value.Schedule.Any(s => s == 1)));
+            var changers = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Any(s => s == 0) && e.Value.Value.Schedule.Any(s => s == 1)));
 
             Logger.Log(changers + " nodes have edges which change weights");
 
-            var stablePeers = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0)));
+            var stablePeers = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0)));
 
             Logger.Log(stablePeers + " nodes point to a stable peer");
 
-            var stableCosts = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 1)));
+            var stableCosts = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 1)));
 
             Logger.Log(stableCosts + " nodes point to a stable costly connection");
 
-            var stableConnection = graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0 || d == 1)));
+            var stableConnection = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0 || d == 1)));
 
             Logger.Log(stableConnection + " nodes point to a stable connection");
+
+            Logger.Log("Edges analyzed", Logger.TabChange.Decrease);
+        }
+
+        public void BrokenPaths()
+        {
+            Logger.Log("Analyzing broken paths", Logger.TabChange.Increase);
+
+            Dictionary<string, List<string>> missingLinks = new Dictionary<string, List<string>>();
+
+            foreach (var path in EveryPath)
+            {
+                for (int i = 1; i < path.Length; i++)
+                {
+                    if (!path[i - 1].Edges.ContainsKey(path[i]))
+                    {
+                        //Logger.Log(path[i - 1].Value.Name + " does not link to " + path[i].Value.Name);
+
+                        if(!missingLinks.ContainsKey(path[i - 1].Value.Name)){
+                            missingLinks[path[i - 1].Value.Name] = new List<string>();
+                        }
+                        missingLinks[path[i - 1].Value.Name].Add(path[i].Value.Name);
+                    }
+                    else
+                    {
+                        var edge = path[i - 1].Edges[path[i]];
+
+                        if (edge.Value.Schedule.Take(15).Any(d => d ==double.PositiveInfinity))
+                        {
+                            Logger.Log(path[i - 1].Value.Name + " does not link to " + path[i].Value.Name + " " + edge.Value.Schedule.Take(15).Count(d => d < 0) + " times");
+                        }
+                    }
+                }
+            }
+
+            File.WriteAllText("Missing_Links.txt", missingLinks.Aggregate("", (c, s) => c + s.Key + "\n" + s.Value.OrderBy(w => w).Aggregate("", (ws, w) => ws + "\t" + w + "\n")));
+
+            Logger.Log("Broken paths analyzed", Logger.TabChange.Decrease);
         }
 
         public void PathLengths()

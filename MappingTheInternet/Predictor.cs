@@ -24,7 +24,7 @@ namespace MappingTheInternet
         {
             get
             {
-                return _graph ?? (_graph = new Graph<ASNode, ConnectionSchedule>());
+                return _graph ?? (_graph = GraphBuilder.Build(NodeNameMapper));
             }
         }
 
@@ -32,7 +32,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Predicting future", Logger.TabChange.Increase);
 
-            BuildGraph();
+            var x = Graph;
 
             double[][] predictions = EmptyPredictions();
 
@@ -62,6 +62,8 @@ namespace MappingTheInternet
 
         private double[] PredictPath(int i)
         {
+            //TODO determine health of path
+
             var path = ToPath(InputData.Paths[i]);
             double[] pastRecord = Enumerable.Range(0, 15).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).ToArray();
             double average = pastRecord.Average();
@@ -75,18 +77,43 @@ namespace MappingTheInternet
 
         private double PathLength(Node<ASNode, ConnectionSchedule>[] path,int time)
         {
-            if (path.Length == 0)
+            if (path.Length == 1)
             {
                 return 0;
             }
 
             double length=0;
 
-            //TODO determine health of path
-            return path.Length;
-            throw new NotImplementedException();
+            var current = path.First();
+            var remaining = path.Skip(1);
+            var next = remaining.First();
 
-            return length + PathLength(path.Skip(1).ToArray(), time);
+            if (current.Edges.ContainsKey(next))
+            {
+                var dist = current.Edges[next].Value.Schedule[time];
+
+                if (dist >= 0)
+                {
+                    length = dist;
+                }
+                else
+                {
+                    
+
+                    length = double.PositiveInfinity;
+                }
+            }
+            else
+            {
+                if (time == 0)
+                {
+                    
+                }
+
+                length = double.PositiveInfinity;
+            }
+
+            return length + PathLength(remaining.ToArray(), time);
         }
 
         private class SearchNode
@@ -122,7 +149,7 @@ namespace MappingTheInternet
                         }
                         if (!unvisitedNodesMap.ContainsKey(e.Key))
                         {
-                            var newNode = new SearchNode{Node=e.Key,Distance=double.PositiveInfinity};
+                            var newNode = new SearchNode { Node = e.Key, Distance = double.PositiveInfinity };
                             unvisitedNodes.AddLast(newNode);
                             unvisitedNodesMap[e.Key] = newNode;
                         }
@@ -131,6 +158,9 @@ namespace MappingTheInternet
                         {
                             unvisitedNodesMap[e.Key].Distance = current.Distance + dist;
                         }
+                    }
+                    else
+                    {
                     }
                 }
 
@@ -145,52 +175,6 @@ namespace MappingTheInternet
         private bool IsOptimumPath(Node<ASNode, ConnectionSchedule>[] path, int t)
         {
             return PathLength(path, t) <= OptimumLength(path.First(), path.Last(), t);
-        }
-
-        private void BuildGraph()
-        {
-            Logger.Log("Building graph", Logger.TabChange.Increase);
-
-            for (int i = 0; i < 15; i++)
-            {
-                foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim())))
-                {
-                    foreach (var name in names.Take(2))
-                    {
-                        if (NodeNameMapper.Get(name) == null)
-                        {
-                            var node = NodeNameMapper.Create(name);
-                            Graph.AddNode(node);
-                        }
-                    }
-
-                    var from = NodeNameMapper.Get(names.ElementAt(0));
-                    var to = NodeNameMapper.Get(names.ElementAt(1));
-
-                    var edge = from.GetEdge(to);
-                    if (edge == null)
-                    {
-                        edge = new Edge<ConnectionSchedule>(new ConnectionSchedule());
-                        from.AddEdge(to, edge);
-                    }
-                    edge.Value.Schedule[i] = double.Parse(names.ElementAt(2));
-                }
-            }
-
-            Logger.Log(Graph.Nodes.Count + " nodes and " + Graph.Nodes.Sum(n => n.Edges.Count) + " edges added from training sets");
-
-            foreach (var name in InputData.Paths.SelectMany(p => p.Split('|').Select(n => n.Trim())))
-            {
-                if (NodeNameMapper.Get(name) == null)
-                {
-                    var node = NodeNameMapper.Create(name);
-                    Graph.AddNode(node);
-                }
-            }
-
-            Logger.Log(Graph.Nodes.Count+" nodes added from paths");
-
-            Logger.Log("Graph built",Logger.TabChange.Decrease);
         }
 
         private double[][] EmptyPredictions()
