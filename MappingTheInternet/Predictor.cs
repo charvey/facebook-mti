@@ -135,7 +135,7 @@ namespace MappingTheInternet
 
             for (int i = 0; i < 15; i++)
             {
-                foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim()).ToArray()))
+                foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim())))
                 {
                     foreach (var name in names.Take(2))
                     {
@@ -146,8 +146,8 @@ namespace MappingTheInternet
                         }
                     }
 
-                    var from = NodeNameMapper.Get(names[0]);
-                    var to = NodeNameMapper.Get(names[1]);
+                    var from = NodeNameMapper.Get(names.ElementAt(0));
+                    var to = NodeNameMapper.Get(names.ElementAt(1));
 
                     var edge = from.GetEdge(to);
                     if (edge == null)
@@ -155,7 +155,7 @@ namespace MappingTheInternet
                         edge = new Edge<ConnectionSchedule>(new ConnectionSchedule());
                         from.AddEdge(to, edge);
                     }
-                    edge.Value.Schedule[i] = double.Parse(names[2]);
+                    edge.Value.Schedule[i] = double.Parse(names.ElementAt(2));
                 }
             }
 
