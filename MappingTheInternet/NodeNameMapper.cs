@@ -11,7 +11,9 @@ namespace MappingTheInternet
         private Dictionary<string, string[]> _nodeNameGroups;
 
         public NodeNameMapper()
-        {            
+        {
+            Logger.Log("Mapping node names");
+
             _nodeNameMap = new Dictionary<string, Node<ASNode, ConnectionSchedule>>();
 
             var nodeNameGroups = NodeNameGrouper.Build();
@@ -25,6 +27,8 @@ namespace MappingTheInternet
                     _nodeNameMap[name] = null;
                 }
             }
+
+            Logger.Log("Node names mapped");
         }
 
         public Node<ASNode, ConnectionSchedule> Get(string name)

@@ -1,5 +1,6 @@
 ﻿using MappingTheInternet.Data;
 using MappingTheInternet.Graph;
+using MappingTheInternet.HashFunctions;
 using MappingTheInternet.Models;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,17 @@ namespace MappingTheInternet
 {
     public class Analyzer
     {
+        private IEnumerable<string> EveryName
+        {
+            get
+            {
+                return InputData.TrainingSets.SelectMany(s => s).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l => l.Split('|'))).Select(s => s.Trim());
+            }
+        }
+
         public void Analyze()
         {
+            HashFunctions();
             HashNames();
 
             HashNumberNames();
@@ -24,6 +34,17 @@ namespace MappingTheInternet
             SinglePaths();
         }
 
+        public void HashFunctions()
+        {
+            var functions = new IHashFunction[] { new HashFunction1(), new HashFunction2() };
+            var results = functions.Select(f => EveryName.Distinct().GroupBy(n => f.HashName(n)).Select(g => g.ToArray()).OrderBy(s=>s.Length).ToArray()).ToArray();
+            
+            for (int i = 1; i <= functions.Length; i++)
+            {
+                Logger.Log("Function " + i + " produces " + results[i-1].Length + " unique names");
+            }
+        }
+
         public void HashNames()
         {
             Logger.Log("\"FPUA - Communications\" becomes \"" + NodeNameGrouper.HashName("FPUA - Communications") + "\"");
@@ -35,10 +56,8 @@ namespace MappingTheInternet
             var hashNumberNames = new HashSet<string>();
             int val;
 
-            var everyName = InputData.TrainingSets.SelectMany(s=>s).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l=>l.Split('|'))).Select(s=>s.Trim());
-
             var hash23689 = "";
-            foreach (var name in everyName.Distinct())
+            foreach (var name in EveryName.Distinct())
             {
                 if (int.TryParse(name, out val))
                 {

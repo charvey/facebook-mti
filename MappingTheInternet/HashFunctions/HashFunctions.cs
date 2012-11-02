@@ -29,4 +29,23 @@ namespace MappingTheInternet.HashFunctions
             return hashName;
         }
     }
+
+    public class HashFunction2 : IHashFunction
+    {
+        public string HashName(string name)
+        {
+            if (name.All(c => '0' <= c && c <= '9'))
+                return name;
+
+            var specialSymbols = name.ToLower().Where(c => !(('a' <= c && c <= 'z') || ('0' <= c && c <= '9'))).Distinct().ToArray();
+
+            var words = name.ToUpper().Split(specialSymbols, StringSplitOptions.RemoveEmptyEntries);
+
+            var sortedDistinctWords = words.Select(w => new string(w.OrderBy(c => c).ToArray())).Distinct().OrderBy(s => s);
+
+            var hashName = sortedDistinctWords.Aggregate("", (s, c) => s + "|" + c);
+
+            return hashName;
+        }
+    }
 }

@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyzer.cs" />
-    <Compile Include="HashFunctions\HashFunction1.cs" />
+    <Compile Include="HashFunctions\HashFunctions.cs" />
     <Compile Include="HashFunctions\IHashFunction.cs" />
     <Compile Include="Models\ConnectionSchedule.cs" />
     <Compile Include="Graph\Edge.cs" />
