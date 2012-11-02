@@ -56,7 +56,7 @@ namespace MappingTheInternet
             return groups;
         }
 
-        private static IHashFunction HashFunction = new HashFunction1();
+        private static IHashFunction HashFunction = new HashFunction3();
 
         public static string HashName(string name)
         {

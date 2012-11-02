@@ -61,16 +61,24 @@ namespace MappingTheInternet
 
         public void HashFunctions()
         {
+            Logger.Log("Analyzing hash functions", Logger.TabChange.Increase);
+
             var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4() };
 
             for (int i = 1; i <= hashes.Length; i++)
             {
+                Logger.Log("Analyzing hash function #" + i, Logger.TabChange.Increase);
+
                 var results = EveryDistinctName.GroupBy(n => hashes[i-1].HashName(n)).Select(g => g.ToArray()).OrderBy(s => s.Length).ToArray();
 
-                Logger.Log("Function " + i + " produces " + results.Length + " unique names");
+                Logger.Log("Function #" + i + " produces " + results.Length + " unique names");
 
                 File.WriteAllLines("hashfunction_" + i + ".txt", results.Select(group => group.Aggregate(hashes[i - 1].HashName(group.First()) + " (" + group.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
+
+                Logger.Log("Hash function #" + i + " analyzed", Logger.TabChange.Increase);
             }
+
+            Logger.Log("Hash functions analyzed", Logger.TabChange.Decrease);
         }
 
         public void HashNames()
