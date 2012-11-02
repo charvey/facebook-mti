@@ -11,21 +11,43 @@ namespace MappingTheInternet
 {
     public class Analyzer
     {
+        private IEnumerable<string> _everyName;
         private IEnumerable<string> EveryName
         {
             get
             {
-                return InputData.TrainingSets.SelectMany(s => s).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l => l.Split('|'))).Select(s => s.Trim());
+                if (_everyName == null)
+                {
+                    _everyName = InputData.TrainingSets.SelectMany(s => s).SelectMany(l => l.Split('|').Take(2)).Concat(InputData.Paths.SelectMany(l => l.Split('|'))).Select(s => s.Trim()).ToList();
+                }
+
+                return _everyName;
+            }
+        }
+
+        private IEnumerable<string> _everyDistinctName;
+        private IEnumerable<string> EveryDistinctName
+        {
+            get
+            {
+                if (_everyDistinctName == null)
+                {
+                    _everyDistinctName = EveryName.Distinct().ToList();
+                }
+
+                return _everyDistinctName;
             }
         }
 
         public void Analyze()
         {
+            Logger.Log("Analyzing data", Logger.TabChange.Increase);
+
             HashFunctions();
             HashNames();
 
             HashNumberNames();
-            
+
             NameAnalysis1();
             NameAnalysis2();
 
@@ -33,18 +55,21 @@ namespace MappingTheInternet
 
             PathLengths();
             SinglePaths();
+
+            Logger.Log("Data analyzed", Logger.TabChange.Decrease);
         }
 
         public void HashFunctions()
         {
-            var functions = new IHashFunction[] { new HashFunction1(), new HashFunction2() };
-            var results = functions.Select(f => EveryName.Distinct().GroupBy(n => f.HashName(n)).Select(g => g.ToArray()).OrderBy(s=>s.Length).ToArray()).ToArray();
-            
-            for (int i = 1; i <= functions.Length; i++)
-            {
-                Logger.Log("Function " + i + " produces " + results[i-1].Length + " unique names");
+            var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4() };
 
-                File.WriteAllLines("hashfunction_" + i + ".txt", results[i - 1].Select(s => s.Aggregate(functions[i - 1].HashName(s[0]) + " (" + s.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
+            for (int i = 1; i <= hashes.Length; i++)
+            {
+                var results = EveryDistinctName.GroupBy(n => hashes[i-1].HashName(n)).Select(g => g.ToArray()).OrderBy(s => s.Length).ToArray();
+
+                Logger.Log("Function " + i + " produces " + results.Length + " unique names");
+
+                File.WriteAllLines("hashfunction_" + i + ".txt", results.Select(group => group.Aggregate(hashes[i - 1].HashName(group.First()) + " (" + group.Length + "): ", (ag, c) => ag + ',' + "\"" + c + "\"")));
             }
         }
 
@@ -92,7 +117,7 @@ namespace MappingTheInternet
 
             var reducedAlphabet = nodeNames.Keys.SelectMany(s => s.ToLower().Where(c => 'a' <= c && c <= 'z')).Distinct().OrderBy(c => c);
 
-            Logger.Log(reducedAlphabet.Count() + " characters in alphabet \"" + reducedAlphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");            
+            Logger.Log(reducedAlphabet.Count() + " characters in alphabet \"" + reducedAlphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");
         }
 
         public void NameAnalysis2()
@@ -190,7 +215,7 @@ namespace MappingTheInternet
                 InputData.Paths.Where(l => !string.IsNullOrEmpty(l)).Min(l => l.Count(c => c == '|') + 1) +
                 " to " +
                 InputData.Paths.Max(l => l.Count(c => c == '|') + 1));
-            Logger.Log(InputData.Paths.Where(l => l.Count(c => c == '|') == 0).Aggregate("", (c, l) => c + '|' + l).Remove(0,1));
+            Logger.Log(InputData.Paths.Where(l => l.Count(c => c == '|') == 0).Aggregate("", (c, l) => c + '|' + l).Remove(0, 1));
         }
 
         public void SinglePaths()

@@ -30,7 +30,7 @@ namespace MappingTheInternet
 
         public double[][] Predict()
         {
-            Logger.Log("Predicting future");
+            Logger.Log("Predicting future", Logger.TabChange.Increase);
 
             BuildGraph();
 
@@ -55,7 +55,7 @@ namespace MappingTheInternet
             }
             sw.Stop();
 
-            Logger.Log("Future predicted");
+            Logger.Log("Future predicted", Logger.TabChange.Decrease);
 
             return predictions;
         }
@@ -149,7 +149,7 @@ namespace MappingTheInternet
 
         private void BuildGraph()
         {
-            Logger.Log("Building graph");
+            Logger.Log("Building graph", Logger.TabChange.Increase);
 
             for (int i = 0; i < 15; i++)
             {
@@ -177,7 +177,7 @@ namespace MappingTheInternet
                 }
             }
 
-            Logger.Log("Graph built with " + Graph.Nodes.Count + " nodes and " + Graph.Nodes.Sum(n => n.Edges.Count) + " edges");
+            Logger.Log(Graph.Nodes.Count + " nodes and " + Graph.Nodes.Sum(n => n.Edges.Count) + " edges added from training sets");
 
             foreach (var name in InputData.Paths.SelectMany(p => p.Split('|').Select(n => n.Trim())))
             {
@@ -188,7 +188,9 @@ namespace MappingTheInternet
                 }
             }
 
-            Logger.Log("Graph updated with path nodes to a total of " + Graph.Nodes.Count);
+            Logger.Log(Graph.Nodes.Count+" nodes added from paths");
+
+            Logger.Log("Graph built",Logger.TabChange.Decrease);
         }
 
         private double[][] EmptyPredictions()

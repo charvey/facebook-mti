@@ -17,7 +17,7 @@ namespace MappingTheInternet
 
         public static Dictionary<string,int> NodeNames()
         {
-            Logger.Log("Loading names");
+            Logger.Log("Loading names", Logger.TabChange.Increase);
 
             var nodeNames = new Dictionary<string, int>();
             Func<string, int> add = (n) => nodeNames[n] = (nodeNames.ContainsKey(n) ? nodeNames[n] : 0) + 1;
@@ -39,21 +39,21 @@ namespace MappingTheInternet
                 }
             }
 
-            Logger.Log(nodeNames.Count + " names loaded");
+            Logger.Log(nodeNames.Count + " names loaded", Logger.TabChange.Decrease);
 
             return nodeNames;
         }
 
         private static HashSet<string[]> ReduceNames(Dictionary<string, int> nodeNames)
         {
-            Logger.Log("Reducing names");
+            Logger.Log("Reducing names", Logger.TabChange.Increase);
 
             var groupings = nodeNames.GroupBy(n => HashName(n.Key));
-            var groups = groupings.Select(g => g.Select(n => n.Key).ToArray());
+            var groups = new HashSet<string[]>(groupings.Select(g => g.Select(n => n.Key).ToArray()));
 
-            Logger.Log("Names reduced to "+groups.Count()+" groups");
+            Logger.Log("Names reduced to "+groups.Count+" groups", Logger.TabChange.Decrease);
 
-            return new HashSet<string[]>(groups);
+            return groups;
         }
 
         private static IHashFunction HashFunction = new HashFunction1();

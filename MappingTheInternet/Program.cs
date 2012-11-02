@@ -22,9 +22,9 @@ namespace MappingTheInternet
 
         private static void OutputResult(double[][] predictions)
         {
-            Logger.Log("Outputting Result");
+            Logger.Log("Outputting Result", Logger.TabChange.Increase);
             File.WriteAllLines("Predictions.txt", new[] { "Predictions" }.Concat(Enumerable.Range(0, 5).SelectMany(t => predictions.Select(p => p[t].ToString()))));
-            Logger.Log("Result Outputted");
+            Logger.Log("Result Outputted", Logger.TabChange.Decrease);
         }
     }
 }

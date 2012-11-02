@@ -12,7 +12,7 @@ namespace MappingTheInternet
 
         public NodeNameMapper()
         {
-            Logger.Log("Mapping node names");
+            Logger.Log("Mapping node names", Logger.TabChange.Increase);
 
             _nodeNameMap = new Dictionary<string, Node<ASNode, ConnectionSchedule>>();
 
@@ -28,7 +28,7 @@ namespace MappingTheInternet
                 }
             }
 
-            Logger.Log("Node names mapped");
+            Logger.Log("Node names mapped", Logger.TabChange.Decrease);
         }
 
         public Node<ASNode, ConnectionSchedule> Get(string name)

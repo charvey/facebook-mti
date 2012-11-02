@@ -1,18 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MappingTheInternet
 {
     public static class Logger
     {
-        public static void Log(string text)
+        private static int TabSize = 0;
+        private const string Tab = "  ";
+
+        public enum TabChange
         {
+            None,Increase,Decrease
+        }
+
+        public static void Log(string text, TabChange tabChange = TabChange.None)
+        {
+            if (tabChange == TabChange.Decrease)
+            {
+                TabSize--;
+            }
+
             //File.AppendAllText("log", text + "\n");
-            Console.Out.WriteLine(text);
+            var fullTab = Enumerable.Repeat(Tab, TabSize).Aggregate("", (c, s) => c + s);
+            var width = Console.WindowWidth - fullTab.Length - 1;
+            for (int i = 0; i < text.Length; i += width)
+            {
+                Console.Out.WriteLine(fullTab + text.Substring(i, Math.Min((text.Length - i), width)));
+            }
+
+            if (tabChange == TabChange.Increase)
+            {
+                TabSize++;
+            }
         }
 
         public static void Wait()
