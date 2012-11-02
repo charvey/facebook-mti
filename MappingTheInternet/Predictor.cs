@@ -121,7 +121,7 @@ namespace MappingTheInternet
                 unvisitedNodesMap.Remove(current.Node);
             } while (!visitedNodes.ContainsKey(to) && unvisitedNodes.Count > 0);
 
-            return visitedNodes[to];
+            return (visitedNodes.ContainsKey(to)) ? visitedNodes[to] : double.PositiveInfinity;
         }
 
         private bool IsOptimumPath(Node<ASNode, ConnectionSchedule>[] path, int t)
@@ -160,6 +160,17 @@ namespace MappingTheInternet
             }
 
             Logger.Log("Graph built with " + Graph.Nodes.Count + " nodes and " + Graph.Nodes.Sum(n => n.Edges.Count) + " edges");
+
+            foreach (var name in InputData.Paths.SelectMany(p => p.Split('|').Select(n => n.Trim())))
+            {
+                if (NodeNameMapper.Get(name) == null)
+                {
+                    var node = NodeNameMapper.Create(name);
+                    Graph.AddNode(node);
+                }
+            }
+
+            Logger.Log("Graph updated with path nodes to a total of " + Graph.Nodes.Count);
         }
 
         private double[][] EmptyPredictions()
