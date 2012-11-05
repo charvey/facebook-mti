@@ -45,6 +45,7 @@
     <Compile Include="GraphBuilder.cs" />
     <Compile Include="HashFunctions\HashFunctions.cs" />
     <Compile Include="HashFunctions\IHashFunction.cs" />
+    <Compile Include="Kaggle.cs" />
     <Compile Include="Models\ConnectionSchedule.cs" />
     <Compile Include="Graph\Edge.cs" />
     <Compile Include="Graph\Graph.cs" />
