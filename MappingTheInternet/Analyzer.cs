@@ -118,7 +118,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing hash functions", Logger.TabChange.Increase);
 
-            var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4(), new HashFunction5(), new HashFunction6() };
+            var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4(), new HashFunction5(), new HashFunction6(), new HashFunction7() };
 
             for (int i = 1; i <= hashes.Length; i++)
             {
@@ -224,7 +224,7 @@ namespace MappingTheInternet
                 }
             }
 
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < InputData.TrainingSets.Length; i++)
             {
                 names[i + 1] = new SortedSet<string>();
                 lines = InputData.TrainingSets[i];
@@ -259,15 +259,15 @@ namespace MappingTheInternet
 
             Logger.Log(changers + " nodes have edges which change weights");
 
-            var stablePeers = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0)));
+            var stablePeers = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(InputData.TrainingSets.Length).All(d => d == 0)));
 
             Logger.Log(stablePeers + " nodes point to a stable peer");
 
-            var stableCosts = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 1)));
+            var stableCosts = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(InputData.TrainingSets.Length).All(d => d == 1)));
 
             Logger.Log(stableCosts + " nodes point to a stable costly connection");
 
-            var stableConnection = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(15).All(d => d == 0 || d == 1)));
+            var stableConnection = Graph.Nodes.Count(n => n.Edges.Any(e => e.Value.Value.Schedule.Take(InputData.TrainingSets.Length).All(d => d == 0 || d == 1)));
 
             Logger.Log(stableConnection + " nodes point to a stable connection");
 

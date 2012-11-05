@@ -17,7 +17,7 @@ namespace MappingTheInternet
 
             var graph = new Graph<ASNode, ConnectionSchedule>();
 
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < InputData.TrainingSets.Length; i++)
             {
                 foreach (var names in InputData.TrainingSets[i].Select(s => s.Split('|').Select(n => n.Trim())))
                 {

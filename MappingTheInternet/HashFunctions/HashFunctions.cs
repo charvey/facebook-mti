@@ -152,4 +152,34 @@ namespace MappingTheInternet.HashFunctions
             return hashName;
         }
     }
+
+    public class HashFunction7 : HashFunction
+    {
+        public override string HashName(string name)
+        {
+            if (name.All(c => '0' <= c && c <= '9'))
+                return name;
+
+            foreach (var specialSymbol in SpecialSymbols.Where(c => c != ' '))
+            {
+                name = name.Replace("" + specialSymbol, "");
+            }
+
+            var reservedWords = new[] { "communications" }.Select(sort).Select(w=>w.ToUpper());
+
+            var words = name.ToUpper().Split(SpecialSymbols, StringSplitOptions.RemoveEmptyEntries);         
+
+            var sortedDistinctWords = words.Select(sort).Distinct().OrderBy(s => s);
+
+            var importantWords = sortedDistinctWords.Where(w => !reservedWords.Contains(w));
+
+            var largeWords = importantWords.Any(w => w.Length > 3)
+                ? importantWords.Where(w => w.Length > 3)
+                : importantWords.Where(w => w.Length > 2);
+
+            var hashName = sortedDistinctWords.Aggregate("", (s, c) => s + "|" + c);
+
+            return hashName;
+        }
+    }
 }

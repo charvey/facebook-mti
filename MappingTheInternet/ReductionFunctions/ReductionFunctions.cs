@@ -28,10 +28,12 @@ namespace MappingTheInternet.ReductionFunctions
     {
         public override HashSet<string[]> ReduceNames(Dictionary<string, int> nodeNames)
         {
-            var groupings = nodeNames.GroupBy(n => HashFunction.Preferred.HashName(n.Key));
+            var hash = new HashFunction7();
+
+            var groupings = nodeNames.GroupBy(n => hash.HashName(n.Key));
             var groups = groupings.Select(g => g.Select(n => n.Key)).OrderBy(g=>g.Count()).ToArray();
             var wordGroupings = groups.ToDictionary(
-                g => HashFunction.Preferred.HashName(g.First()).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries),
+                g => hash.HashName(g.First()).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries),
                 g => g.Aggregate("", (c, s) => c + "," + s).Remove(0, 1)).ToArray();
 
             int limit = 100;

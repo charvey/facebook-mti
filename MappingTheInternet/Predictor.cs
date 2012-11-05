@@ -65,7 +65,7 @@ namespace MappingTheInternet
             //TODO determine health of path
 
             var path = ToPath(InputData.Paths[i]);
-            double[] pastRecord = Enumerable.Range(0, 15).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).ToArray();
+            double[] pastRecord = Enumerable.Range(0, InputData.TrainingSets.Length).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).ToArray();
             double average = pastRecord.Average();
             return new[] { average, average, average, average, average };
         }
