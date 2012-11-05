@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using MappingTheInternet.Data;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MappingTheInternet
@@ -7,17 +10,56 @@ namespace MappingTheInternet
     {
         static void Main(string[] args)
         {
-            #if DEBUG
-            var analyzer = new Analyzer();
-            analyzer.Analyze();
-            #endif
+            int input;
+            bool exit = false;
+            string[] menu = new[] { "Make Prediction", "Run Analysis", "Estimate Score", "Exit" };
+            while (!exit)
+            {
+                Console.Out.WriteLine("Make a choice");
 
-            var predictor = new Predictor();
-            var predictions = predictor.Predict();
+                for (int i = 0; i < menu.Length; i++)
+                {
+                    Console.Out.WriteLine("{0}. {1}", i + 1, menu[i]);
+                }
 
-            OutputResult(predictions);
+                if (!int.TryParse(Console.In.ReadLine(), out input))
+                {
+                    continue;
+                }
 
-            Logger.Wait();
+                switch (input)
+                {
+                    case 1:
+                        {
+                            var predictor = new Predictor();
+                            var predictions = predictor.Predict();
+
+                            OutputResult(predictions);
+                        }
+                        break;
+                    case 2:
+                        {
+                            var analyzer = new Analyzer();
+                            analyzer.Analyze();
+                        }
+                        break;
+                    case 3:
+                        {
+                            InputData.FullData = false;
+                            var predictor = new Predictor();
+                            var predictions = predictor.Predict();
+                            InputData.FullData = true;
+
+                            Console.Out.WriteLine(EstimateScore(predictions));                           
+                        }
+                        break;
+
+                    case 4:
+                        exit = true;
+                        break;
+
+                }
+            }
         }
 
         private static void OutputResult(double[][] predictions)
@@ -25,6 +67,19 @@ namespace MappingTheInternet
             Logger.Log("Outputting Result", Logger.TabChange.Increase);
             File.WriteAllLines("Predictions.txt", new[] { "Predictions" }.Concat(Enumerable.Range(0, 5).SelectMany(t => predictions.Select(p => p[t].ToString()))));
             Logger.Log("Result Outputted", Logger.TabChange.Decrease);
+        }
+
+        private static double EstimateScore(double[][] predictions)
+        {
+            Logger.Log("Estimating Score", Logger.TabChange.Increase);
+
+            var actual =new List<double>();
+            var predicted = predictions.SelectMany(tp => tp).ToList();
+            double score = Kaggle.Auc(actual, predicted);
+
+            Logger.Log("Score Estimated", Logger.TabChange.Decrease);
+
+            return score;
         }
     }
 }
