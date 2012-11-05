@@ -95,13 +95,12 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing data", Logger.TabChange.Increase);
 
-            //HashFunctions();
+            HashFunctions();
             //HashNumberNames();
 
             ReductionFunctions();
 
-            //NameAnalysis1();
-            //NameAnalysis2();
+            NameAnalysis();
 
             //Edges();
 
@@ -118,7 +117,9 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing hash functions", Logger.TabChange.Increase);
 
-            var hashes = new IHashFunction[] { new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4(), new HashFunction5(), new HashFunction6(), new HashFunction7() };
+            var hashes = new IHashFunction[] {
+                /*new HashFunction1(), new HashFunction2(), new HashFunction3(), new HashFunction4(),
+                new HashFunction5(), new HashFunction6(), new HashFunction7(),*/ new HashFunction8() };
 
             for (int i = 1; i <= hashes.Length; i++)
             {
@@ -137,7 +138,7 @@ namespace MappingTheInternet
         }
         
         public void HashNumberNames()
-        {
+       { 
             var numberNames = new HashSet<string>();
             var hashNumberNames = new HashSet<string>();
             int val;
@@ -171,7 +172,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing reduction functions", Logger.TabChange.Increase);
 
-            var reduces = new IReductionFunction[] { new ReductionFunction1(), new ReductionFunction2() };
+            var reduces = new IReductionFunction[] { /*new ReductionFunction1(), new ReductionFunction2(),*/new ReductionFunction3() };
 
             for (int i = 1; i <= reduces.Length; i++)
             {
@@ -194,8 +195,10 @@ namespace MappingTheInternet
 
         #region Names
 
-        public void NameAnalysis1()
+        public void NameAnalysis()
         {
+            Logger.Log("Analyzing names", Logger.TabChange.Increase);
+
             var nodeNames = NodeNameGrouper.NodeNames();
 
             Logger.Log("Longest name is " + nodeNames.Max(n => n.Key.Length) + " characters long");
@@ -207,44 +210,50 @@ namespace MappingTheInternet
             var reducedAlphabet = nodeNames.Keys.SelectMany(s => s.ToLower().Where(c => 'a' <= c && c <= 'z')).Distinct().OrderBy(c => c);
 
             Logger.Log(reducedAlphabet.Count() + " characters in alphabet \"" + reducedAlphabet.Aggregate(string.Empty, (s, c) => s + c) + "\"");
-        }
 
-        public void NameAnalysis2()
-        {
-            string[] lines;
-            var names = new SortedSet<string>[16];
+            var commonWords = EveryName
+                    .SelectMany(n => n.Replace(",", "").Replace(".", "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(na => na.Trim().ToUpper()))
+                    .GroupBy(n => n).OrderByDescending(g => g.Count()).Take(25).Select(g => g.Key + " " + g.Count()).ToArray();
+            Logger.Log(commonWords.Length + " most common words: " + commonWords.Aggregate("", (c, s) => c + "," + s).Remove(0, 1));
 
-            lines = InputData.Paths;
-            names[0] = new SortedSet<string>();
-            foreach (var line in lines.Select(l => l.Split('|')))
             {
-                foreach (var name in line)
-                {
-                    names[0].Add(name.Trim());
-                }
-            }
+                string[] lines;
+                var names = new SortedSet<string>[16];
 
-            for (int i = 0; i < InputData.TrainingSets.Length; i++)
-            {
-                names[i + 1] = new SortedSet<string>();
-                lines = InputData.TrainingSets[i];
-
+                lines = InputData.Paths;
+                names[0] = new SortedSet<string>();
                 foreach (var line in lines.Select(l => l.Split('|')))
                 {
-                    names[i + 1].Add(line[0].Trim());
-                    names[i + 1].Add(line[1].Trim());
+                    foreach (var name in line)
+                    {
+                        names[0].Add(name.Trim());
+                    }
                 }
+
+                for (int i = 0; i < InputData.TrainingSets.Length; i++)
+                {
+                    names[i + 1] = new SortedSet<string>();
+                    lines = InputData.TrainingSets[i];
+
+                    foreach (var line in lines.Select(l => l.Split('|')))
+                    {
+                        names[i + 1].Add(line[0].Trim());
+                        names[i + 1].Add(line[1].Trim());
+                    }
+                }
+
+                Logger.Log("The unique names in each set are: " + names.Skip(1).Aggregate("paths " + names[0].Count, (c, s) => c + ", " + s.Count));
+
+                Logger.Log("Train 1 and 2 have " + names[1].Intersect(names[2]).Count() + " names in common");
+
+                var trainingCommonNames = names.Skip(2).Aggregate(new SortedSet<string>(names[1]), (s, c) => { s.IntersectWith(c); return s; });
+
+                Logger.Log("The training sets have " + trainingCommonNames.Count + " names in common");
+
+                Logger.Log("The training and path sets have " + trainingCommonNames.Intersect(names[0]).Count() + " names in common");
             }
 
-            Logger.Log("The unique names in each set are: " + names.Skip(1).Aggregate("paths " + names[0].Count, (c, s) => c + ", " + s.Count));
-
-            Logger.Log("Train 1 and 2 have " + names[1].Intersect(names[2]).Count() + " names in common");
-
-            var trainingCommonNames = names.Skip(2).Aggregate(new SortedSet<string>(names[1]), (s, c) => { s.IntersectWith(c); return s; });
-
-            Logger.Log("The training sets have " + trainingCommonNames.Count + " names in common");
-
-            Logger.Log("The training and path sets have " + trainingCommonNames.Intersect(names[0]).Count() + " names in common");
+            Logger.Log("Names analyzed", Logger.TabChange.Decrease);
         }
 
         #endregion

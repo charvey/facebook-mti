@@ -153,8 +153,7 @@ namespace MappingTheInternet.HashFunctions
         }
     }
 
-    public class HashFunction7 : HashFunction
-    {
+    public class HashFunction7 : HashFunction{
         public override string HashName(string name)
         {
             if (name.All(c => '0' <= c && c <= '9'))
@@ -178,6 +177,31 @@ namespace MappingTheInternet.HashFunctions
                 : importantWords.Where(w => w.Length > 2);
 
             var hashName = sortedDistinctWords.Aggregate("", (s, c) => s + "|" + c);
+
+            return hashName;
+        }
+    }
+
+    public class HashFunction8 : HashFunction
+    {
+        public override string HashName(string name)
+        {
+            if (name.All(c => '0' <= c && c <= '9'))
+                return name;
+
+            name = name.Replace("-", "").Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
+
+            var words = name.Split().Where(w => w.Length > 2);
+
+            var reservedWords = (new[] { "INC", "LTD", "LLC" ,"SERVICES","NETWORK","AS","SYSTEM","AUTONOMOUS"}).Select(sort);
+            
+            var distinctWords = words.Select(sort).Distinct();
+
+            var filteredWords = distinctWords.Except(reservedWords);
+
+            var sortedWords = filteredWords.OrderBy(s => s);
+
+            var hashName = sortedWords.Aggregate("", (s, c) => s + "|" + c);
 
             return hashName;
         }
