@@ -193,7 +193,7 @@ namespace MappingTheInternet.HashFunctions
 
             var words = name.Split().Where(w => w.Length > 2);
 
-            var reservedWords = (new[] { "INC", "LTD", "LLC" ,"SERVICES","NETWORK","AS","SYSTEM","AUTONOMOUS"}).Select(sort);
+            var reservedWords = (new[] { "INC", "LTD", "LLC", "SERVICES", "NETWORK", "AS", "SYSTEM", "AUTONOMOUS" }).Select(sort);
             
             var distinctWords = words.Select(sort).Distinct();
 

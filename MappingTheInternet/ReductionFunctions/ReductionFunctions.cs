@@ -8,7 +8,7 @@ namespace MappingTheInternet.ReductionFunctions
 {
     public abstract class ReductionFunction : IReductionFunction
     {
-        public static readonly ReductionFunction Preferred = new ReductionFunction1();
+        public static readonly ReductionFunction Preferred = new ReductionFunction3();
 
         public abstract HashSet<string[]> ReduceNames(Dictionary<string, int> nodeNames);
     }

@@ -5,20 +5,6 @@ namespace MappingTheInternet.Data
 {
     public static class InputData
     {
-        private static bool _fullData = true;
-        public static bool FullData
-        {
-            get
-            {
-                return _fullData;
-            }
-            set
-            {
-                _trainingSets = null;
-                _fullData = value;
-            }
-        }
-
         private static string[] _paths;
         public static string[] Paths
         {
@@ -40,7 +26,7 @@ namespace MappingTheInternet.Data
             {
                 if (_trainingSets == null)
                 {
-                    _trainingSets = Enumerable.Range(0, FullData ? 15 : 10).Select(i => File.ReadAllLines("data/train/train" + (i + 1) + ".txt")).ToArray();
+                    _trainingSets = Enumerable.Range(0, 15).Select(i => File.ReadAllLines("data/train/train" + (i + 1) + ".txt")).ToArray();
                 }
 
                 return _trainingSets;
