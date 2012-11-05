@@ -73,7 +73,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Estimating Score", Logger.TabChange.Increase);
 
-            var actual =new List<double>();
+            var actual = Enumerable.Range(0, 10000).Select(i => (double)i).ToList();
             var predicted = predictions.SelectMany(tp => tp).ToList();
             double score = Kaggle.Auc(actual, predicted);
 

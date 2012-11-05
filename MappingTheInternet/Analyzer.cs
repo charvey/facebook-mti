@@ -95,19 +95,19 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing data", Logger.TabChange.Increase);
 
-            HashFunctions();
-            HashNumberNames();
+            //HashFunctions();
+            //HashNumberNames();
 
             ReductionFunctions();
 
-            NameAnalysis1();
-            NameAnalysis2();
+            //NameAnalysis1();
+            //NameAnalysis2();
 
-            Edges();
+            //Edges();
 
-            BrokenPaths();
-            PathLengths();
-            SinglePaths();
+            //BrokenPaths();
+            //PathLengths();
+            //SinglePaths();
 
             Logger.Log("Data analyzed", Logger.TabChange.Decrease);
         }
