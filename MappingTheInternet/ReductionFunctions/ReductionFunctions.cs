@@ -87,65 +87,80 @@ namespace MappingTheInternet.ReductionFunctions
                 words = hash.HashName(g.First().Key).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
             }).OrderBy(g => g.instances.Count()).ToArray();
 
-            double avg = groups.Average(g => g.instances.Count());
             File.Delete("Reductions_3.txt");
-            for (int i = 0; i < groups.Length; i++)
+            for (int pass = 1; pass <= 3; pass++)
             {
-                if (groups[i].hash.All(c => '0' <= c && c <= '9'))
-                {
-                    continue;
-                }
-                /*
-                if (groups[i].instances.Count() > 1)
-                {
-                    Logger.Log("All 1 value items reduced");
-                    break;
-                }
-                */
-                if (groups[i].instances.Count()>=avg)
-                {
-                    Logger.Log("Smaller than average items have been reduced");
-                    break;
-                }
+                double average = groups.Where(g => g != null).Average(g => g.instances.Count());
+                int count = groups.Count(g => g != null);
 
-                string[] a = groups[i].words;
-                double maxScore = 0;
-                int maxScoreIndex = i;
-                for (int j = i + 1; j < groups.Length; j++)
+                Logger.Log(string.Format("The {0} groups have an average size {1} before pass {2}", count, average, pass), Logger.TabChange.Increase);
+                Logger.StartProgress(count);
+
+                for (int i = 0; i < groups.Length; i++)
                 {
-                    string[] b = groups[j].words;
-
-                    double score = a.Intersect(b).Count() * 1.0 / ((a.Length + b.Length) / 2.0);
-
-                    if (score > .5)
+                    if (groups[i] == null)
                     {
-                        File.AppendAllText("Reductions_3.txt", score + " " + groups[i].instances.Aggregate("",(c,s)=>c+","+s).Remove(0,1) +
-                            " may belong to " + groups[j].instances.Aggregate("",(c,s)=>c+","+s).Remove(0,1) + "\n");
+                        continue;
+                    }
+                    if (groups[i].hash.All(c => '0' <= c && c <= '9'))
+                    {
+                        continue;
+                    }
+                    if (groups[i].instances.Count() >= average)
+                    {
+                        continue;
                     }
 
-                    if (score > maxScore)
+                    string[] a = groups[i].words;
+                    double maxScore = 0;
+                    int maxScoreIndex = i;
+                    for (int j = i + 1; j < groups.Length; j++)
                     {
-                        maxScore = score;
-                        maxScoreIndex = j;
+                        if (groups[j] == null)
+                            continue;
+
+                        string[] b = groups[j].words;
+
+                        double score = a.Intersect(b).Count() * 1.0 / ((a.Length + b.Length) / 2.0);
+
+                        if (score > .5)
+                        {
+                            File.AppendAllText("Reductions_3.txt", score + " " + groups[i].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) +
+                                " may belong to " + groups[j].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) + "\n");
+                        }
+
+                        if (score > maxScore)
+                        {
+                            maxScore = score;
+                            maxScoreIndex = j;
+                        }
                     }
+
+                    if (maxScore > .5)
+                    {
+                        File.AppendAllText("Reductions_3.txt", maxScore + " " + groups[i].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) +
+                                " most likely belongs to " + groups[maxScoreIndex].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) + "\n");
+
+                        groups[maxScoreIndex].instances.AddRange(groups[i].instances);
+                        groups[i] = null;
+                    }
+                    else
+                    {
+                        File.AppendAllText("Reductions_3.txt", maxScore + " " + groups[i].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) +
+                                " does not belong to any groups\n");
+                    }
+
+                    Logger.Progress("{0}% through reduction", i);
                 }
 
-                if (maxScore > .5)
-                {
-                    File.AppendAllText("Reductions_3.txt", maxScore + " " + groups[i].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) +
-                            " most likely belongs to " + groups[maxScoreIndex].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) + "\n");
+                average = groups.Where(g=>g!=null).Average(g => g.instances.Count());
+                count = groups.Count(g => g != null);
 
-                    groups[maxScoreIndex].instances.AddRange(groups[i].instances);
-                    groups[i] = null;
-                }
-                else
-                {
-                    File.AppendAllText("Reductions_3.txt", maxScore + " " + groups[i].instances.Aggregate("", (c, s) => c + "," + s).Remove(0, 1) +
-                            " does not belong to any groups\n");
-                }
+                Logger.Log(string.Format("The {0} groups have an average size {1} after pass {2}", count, average, pass), Logger.TabChange.Decrease);
             }
 
             return new HashSet<string[]>(groups.Where(g => g != null).Select(g => g.instances.Select(inst => inst.Key).Distinct().ToArray()));
         }
     }
+
 }

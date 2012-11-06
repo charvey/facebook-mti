@@ -172,7 +172,9 @@ namespace MappingTheInternet
         {
             Logger.Log("Analyzing reduction functions", Logger.TabChange.Increase);
 
-            var reduces = new IReductionFunction[] { /*new ReductionFunction1(), new ReductionFunction2(),*/new ReductionFunction3() };
+            var reduces = new IReductionFunction[] {
+                /*new ReductionFunction1(), new ReductionFunction2(),*/new ReductionFunction3()
+            };
 
             for (int i = 1; i <= reduces.Length; i++)
             {
