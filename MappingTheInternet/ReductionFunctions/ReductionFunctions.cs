@@ -87,26 +87,24 @@ namespace MappingTheInternet.ReductionFunctions
                 words = hash.HashName(g.First().Key).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
             }).OrderBy(g => g.instances.Count()).ToArray();
 
-            File.Delete("Reductions_3.txt");
-            for (int pass = 1; pass <= 3; pass++)
-            {
-                double average = groups.Where(g => g != null).Average(g => g.instances.Count());
-                int count = groups.Count(g => g != null);
+            var numbers = groups.Where(g => g.hash.All(c => '0' <= c && c <= '9')).Select(Convert.ToInt32);
+            groups = groups.Where(g => !g.hash.All(c => '0' <= c && c <= '9')).ToArray();
 
-                Logger.Log(string.Format("The {0} groups have an average size {1} before pass {2}", count, average, pass), Logger.TabChange.Increase);
-                Logger.StartProgress(count);
+            File.Delete("Reductions_3.txt");
+            int pass = 0,beforeCount=0,afterCount=0;
+            do
+            {
+                pass++;                
+
+                double beforeAverage = groups.Average(g => g.instances.Count());
+                beforeCount = groups.Count();
+
+                Logger.Log(string.Format("The {0} groups have an average size {1} before pass {2}", beforeCount, beforeAverage, pass), Logger.TabChange.Increase);
+                //Logger.StartProgress(count);
 
                 for (int i = 0; i < groups.Length; i++)
                 {
-                    if (groups[i] == null)
-                    {
-                        continue;
-                    }
-                    if (groups[i].hash.All(c => '0' <= c && c <= '9'))
-                    {
-                        continue;
-                    }
-                    if (groups[i].instances.Count() >= average)
+                    if (groups[i].instances.Count >= beforeAverage)
                     {
                         continue;
                     }
@@ -121,7 +119,23 @@ namespace MappingTheInternet.ReductionFunctions
 
                         string[] b = groups[j].words;
 
-                        double score = a.Intersect(b).Count() * 1.0 / ((a.Length + b.Length) / 2.0);
+                        double score = 0;
+
+                        for (int ia = 0; ia < a.Length; ia++)
+                        {
+                            int bs = 0;
+                            for (int ib = bs; ib < b.Length; ib++)
+                            {
+                                if (a[ia] == b[ib])
+                                {
+                                    score++;
+                                    bs = ib + 1;
+                                    break;
+                                }
+                            }
+                        }
+
+                        score /= ((a.Length + b.Length) / 2.0);
 
                         if (score > .5)
                         {
@@ -150,17 +164,21 @@ namespace MappingTheInternet.ReductionFunctions
                                 " does not belong to any groups\n");
                     }
 
-                    Logger.Progress("{0}% through reduction", i);
+                    //Logger.Progress("{0}% through reduction", i);
                 }
 
-                average = groups.Where(g=>g!=null).Average(g => g.instances.Count());
-                count = groups.Count(g => g != null);
+                groups = groups.Where(g=>g!=null).OrderBy(g => g.instances.Count()).ToArray();
 
-                Logger.Log(string.Format("The {0} groups have an average size {1} after pass {2}", count, average, pass), Logger.TabChange.Decrease);
-            }
+                double afterAverage = groups.Average(g => g.instances.Count());
+                afterCount = groups.Length;
 
-            return new HashSet<string[]>(groups.Where(g => g != null).Select(g => g.instances.Select(inst => inst.Key).Distinct().ToArray()));
+                Logger.Log(string.Format("The {0} groups have an average size {1} after pass {2}", afterCount, afterAverage, pass), Logger.TabChange.Decrease);
+            } while (beforeCount != afterCount);
+
+            var numberNameGroups = numbers.OrderBy(n => n).Select(n => new[] { n.ToString() }).AsEnumerable<string[]>();
+            var textNameGroups = groups.Select(g => g.instances.Select(inst => inst.Key).Distinct().ToArray()).AsEnumerable<string[]>();
+
+            return new HashSet<string[]>(numberNameGroups.Concat(textNameGroups));
         }
     }
-
 }
