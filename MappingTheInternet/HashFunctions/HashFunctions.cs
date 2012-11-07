@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MappingTheInternet.HashFunctions
@@ -9,7 +10,7 @@ namespace MappingTheInternet.HashFunctions
 
         protected static char[] SpecialSymbols = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".ToCharArray();
 
-        protected string sort(string word)
+        protected static string sort(string word)
         {
             var chars = word.ToCharArray();
 
@@ -184,22 +185,28 @@ namespace MappingTheInternet.HashFunctions
 
     public class HashFunction8 : HashFunction
     {
+        private static IEnumerable<string> reservedWords = (new[] { "INC", "LTD", "LLC", "SERVICES", "NETWORK", "AS", "SYSTEM", "AUTONOMOUS" }).Select(sort);
+
         public override string HashName(string name)
         {
             if (name.All(c => '0' <= c && c <= '9'))
                 return name;
 
-            name = name.Replace("-", "").Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
+            var cleanName = name.Replace("-", "").Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
 
-            var words = name.Split().Where(w => w.Length > 2);
-
-            var reservedWords = (new[] { "INC", "LTD", "LLC", "SERVICES", "NETWORK", "AS", "SYSTEM", "AUTONOMOUS" }).Select(sort);
+            var words = name.Split();
             
             var distinctWords = words.Select(sort).Distinct();
 
-            var filteredWords = distinctWords.Except(reservedWords);
+            var filteredWords = distinctWords.All(w => reservedWords.Contains(w))
+                ? distinctWords
+                : distinctWords.Except(reservedWords);
 
-            var sortedWords = filteredWords.OrderBy(s => s);
+            var mainWords = filteredWords.Any(w => w.Length > 2)
+                ? filteredWords.Where(w => w.Length > 2)
+                : filteredWords.Where(w => w.Length > 1);
+
+            var sortedWords = mainWords.OrderBy(s => s);
 
             var hashName = sortedWords.Aggregate("", (s, c) => s + "|" + c);
 

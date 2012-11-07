@@ -87,7 +87,7 @@ namespace MappingTheInternet.ReductionFunctions
                 words = hash.HashName(g.First().Key).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
             }).OrderBy(g => g.instances.Count()).ToArray();
 
-            var numbers = groups.Where(g => g.hash.All(c => '0' <= c && c <= '9')).Select(Convert.ToInt32);
+            var numbers = groups.Where(g => g.hash.All(c => '0' <= c && c <= '9')).Select(g => Convert.ToInt32(g.hash));
             groups = groups.Where(g => !g.hash.All(c => '0' <= c && c <= '9')).ToArray();
 
             File.Delete("Reductions_3.txt");
@@ -175,8 +175,8 @@ namespace MappingTheInternet.ReductionFunctions
                 Logger.Log(string.Format("The {0} groups have an average size {1} after pass {2}", afterCount, afterAverage, pass), Logger.TabChange.Decrease);
             } while (beforeCount != afterCount);
 
-            var numberNameGroups = numbers.OrderBy(n => n).Select(n => new[] { n.ToString() }).AsEnumerable<string[]>();
-            var textNameGroups = groups.Select(g => g.instances.Select(inst => inst.Key).Distinct().ToArray()).AsEnumerable<string[]>();
+            var numberNameGroups = numbers.OrderBy(n => n).Select(n => new string[] { n.ToString() });
+            var textNameGroups = groups.Select(g => g.instances.Select(inst => inst.Key).Distinct().ToArray());
 
             return new HashSet<string[]>(numberNameGroups.Concat(textNameGroups));
         }
