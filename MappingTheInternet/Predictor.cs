@@ -102,10 +102,5 @@ namespace MappingTheInternet
             Func<ConnectionSchedule, double> weight = (e) => e.Schedule[t];
             return Graph.PathLength(path, weight) <= Graph.OptimumLength(path.First(), path.Last(), weight);
         }
-
-        private double[][] EmptyPredictions(int predictStart = 15, int predictEnd = 19)
-        {
-            return Enumerable.Repeat((Object)null, InputData.Paths.Length).Select((o) => new double[predictEnd - predictStart + 1]).ToArray();
-        }
     }
 }
