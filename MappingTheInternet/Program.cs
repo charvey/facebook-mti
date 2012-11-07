@@ -58,7 +58,7 @@ namespace MappingTheInternet
             Logger.Log("Unknown values predicted", Logger.TabChange.Decrease);
 
             Logger.Log("Outputting prediction", Logger.TabChange.Increase);
-            File.WriteAllLines("Predictions.txt", new[] { "Predictions" }.Concat(Enumerable.Range(0, 5).SelectMany(t => predictions.Select(p => p[t].ToString()))));
+            File.WriteAllLines("Prediction.csv", new[] { "Prediction" }.Concat(Enumerable.Range(0, 5).SelectMany(t => predictions.Select(p => p[t].ToString()))));
             Logger.Log("Prediction outputted", Logger.TabChange.Decrease);
 
             Logger.Log("Prediction made", Logger.TabChange.Decrease);
