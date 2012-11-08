@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MappingTheInternet.HashFunctions
@@ -18,7 +19,7 @@ namespace MappingTheInternet.HashFunctions
             for (int i = 0; i < chars.Length; i++)
             {
                 min = i;
-                for (int j = i+1; j < chars.Length; j++)
+                for (int j = i + 1; j < chars.Length; j++)
                 {
                     if (chars[j] < chars[min])
                     {
@@ -50,11 +51,13 @@ namespace MappingTheInternet.HashFunctions
                 name = string.Empty;
             }
 
-            var cleanName = name.Replace("-", "").Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
+            var cleanName = name.Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
 
-            var words = name.Split();
+            var basicWords = cleanName.Split().Select(sort).Distinct();
 
-            var distinctWords = words.Select(sort).Distinct();
+            var extraWords = basicWords.Where(w => w.Contains('-')).SelectMany(w => w.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries));
+
+            var distinctWords = basicWords.Concat(extraWords).Distinct();
 
             var filteredWords = distinctWords.All(w => reservedWords.Contains(w))
                 ? distinctWords

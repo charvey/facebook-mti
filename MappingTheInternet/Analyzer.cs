@@ -141,24 +141,17 @@ namespace MappingTheInternet
        { 
             var numberNames = new HashSet<string>();
             var hashNumberNames = new HashSet<string>();
-            int val;
 
-            var hash23689 = "";
             foreach (var name in EveryName.Distinct())
             {
+                int val;
                 if (int.TryParse(name, out val))
                 {
                     numberNames.Add(name);
                     var hash = HashFunction.Preferred.HashName(name);
                     hashNumberNames.Add(hash);
-
-                    if (hash == "|23689")
-                    {
-                        hash23689 += (hash23689 == "" ? "" : ",") + "\"" + name + "\"";
-                    }
                 }
             }
-            Logger.Log("The following have hash \"|23689\": " + hash23689);
 
             Logger.Log(numberNames.Count + " names are numbers");
             Logger.Log(hashNumberNames.Count + " unique number name hashes");

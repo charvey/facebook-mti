@@ -9,7 +9,9 @@ namespace MappingTheInternet
         {
             double avg = data.Average();
 
-            return Math.Sqrt(data.Sum(x => Math.Pow(x - avg, 2)) / data.Length);
+            double sum = data.Sum(x => Math.Pow(x - avg, 2));
+
+            return Math.Sqrt(sum / data.Length);
         }
     }
 }
