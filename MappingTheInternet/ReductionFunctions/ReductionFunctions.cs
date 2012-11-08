@@ -1,7 +1,6 @@
 ﻿using MappingTheInternet.HashFunctions;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace MappingTheInternet.ReductionFunctions

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace MappingTheInternet.HashFunctions
 {
     public abstract class HashFunction : IHashFunction
     {
-        public static readonly HashFunction Preferred = new HashFunction5();
+        public static readonly HashFunction Preferred = new HashFunction8();
 
         protected static char[] SpecialSymbols = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".ToCharArray();
 
