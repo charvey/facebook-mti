@@ -189,13 +189,18 @@ namespace MappingTheInternet.HashFunctions
 
         public override string HashName(string name)
         {
-            if (name.All(c => '0' <= c && c <= '9'))
-                return name;
+            string id = "#";
+            int number;
+            if (int.TryParse(name, out number))
+            {
+                id = number.ToString();
+                name = string.Empty;
+            }
 
             var cleanName = name.Replace("-", "").Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
 
             var words = name.Split();
-            
+
             var distinctWords = words.Select(sort).Distinct();
 
             var filteredWords = distinctWords.All(w => reservedWords.Contains(w))
@@ -208,7 +213,7 @@ namespace MappingTheInternet.HashFunctions
 
             var sortedWords = mainWords.OrderBy(s => s);
 
-            var hashName = sortedWords.Aggregate("", (s, c) => s + "|" + c);
+            var hashName = sortedWords.Aggregate(id, (s, c) => s + "|" + c);
 
             return hashName;
         }

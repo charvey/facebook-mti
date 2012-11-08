@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace MappingTheInternet.Models
 {
     public class ASNode
     {
         public readonly string Name;
+        public readonly int? Number;
 
         public ASNode(string name)
         {
             Name = name;
+        }
+
+        public ASNode(int number)
+        {
+            Number = number;
         }
     }
 }

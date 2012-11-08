@@ -98,7 +98,7 @@ namespace MappingTheInternet.ReductionFunctions
             {
                 hash = g.Key,
                 instances = g.ToList(),
-                words = hash.HashName(g.First().Key).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+                words = hash.HashName(g.First().Key).Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray()
             }).OrderBy(g => g.instances.Count()).ToArray();
 
             var numbers = groups.Where(g => g.hash.All(c => '0' <= c && c <= '9')).Select(g => Convert.ToInt32(g.hash));
