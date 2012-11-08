@@ -232,12 +232,11 @@ namespace MappingTheInternet
                     }
                 }
 
-                for (int i = 0; i < InputData.TrainingSets.Length; i++)
+                foreach (int i in Enumerable.Range(0, InputData.TrainingSets.Length))
                 {
                     names[i + 1] = new SortedSet<string>();
-                    lines = InputData.TrainingSets[i];
 
-                    foreach (var line in lines.Select(l => l.Split('|')))
+                    foreach (var line in InputData.TrainingSets[i].Select(l => l.Split('|')))
                     {
                         names[i + 1].Add(line[0].Trim());
                         names[i + 1].Add(line[1].Trim());

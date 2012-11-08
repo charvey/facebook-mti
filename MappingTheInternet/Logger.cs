@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Timers;
 
 namespace MappingTheInternet
 {
@@ -35,43 +38,38 @@ namespace MappingTheInternet
             }
         }
 
-        #region Progress
-
-        private static int _total;
-        private static double _progress;
-        private static Stopwatch _stopwatch;
-
-        public static void StartProgress(int total)
+        public static List<T> Batch<T>(int total, Func<int,T> operation, string text)
         {
-            _total = total;
-            _progress = 0;
-            _stopwatch = new Stopwatch();
-            _stopwatch.Start();
-        }
-
-        public static void Progress(string text, int index)
-        {
-            if (100.0 * index / _total >= _progress)
+            Stopwatch sw = new Stopwatch();
+            Timer timer = new Timer(17);
+            int maxi = int.MinValue;
+            timer.Elapsed += new ElapsedEventHandler((o, e) =>
             {
-                int p = (int)(100.0 * index / _total);
-                var elapsed = _stopwatch.Elapsed;
+                double p = (100.0 * maxi) / total;
+                var elapsed = sw.Elapsed;
                 var elapsedString = elapsed.ToString(@"hh\:mm\:ss");
-                var remaining = (p > 0) ? TimeSpan.FromSeconds(elapsed.TotalSeconds * ((100.0 - p) / p)) : TimeSpan.MaxValue;
-                var remainingString = remaining == TimeSpan.MaxValue ? "N/A" : remaining.ToString(@"hh\:mm\:ss");
-                Logger.Log(string.Format(text+" Running Time: {1}, Remaining Time: {2}", p.ToString("#0"), elapsedString, remainingString));
+                var remaining = (maxi > 0) ? TimeSpan.FromSeconds(elapsed.TotalSeconds * ((100.0 - p) / p)) : TimeSpan.MaxValue;
+                var remaingString = remaining == TimeSpan.MaxValue ? "N/A" : remaining.ToString(@"hh\:mm\:ss");
 
-                if (p == 100)
-                {
-                    _stopwatch.Stop();
-                }
-                else
-                {
-                    _progress = p + 1;
-                }
-            }
+                Console.Title = string.Format("{0}% "+text+". Running Time: {1}, Remaining Time: {2}", p.ToString("00.0"), elapsedString, remaingString);
+            });
+
+            sw.Start();
+            timer.Start();
+            var partitioner = Partitioner.Create(Enumerable.Range(0, total));
+            var results = partitioner.AsParallel().Select(i =>
+            {
+                var result = operation(i);
+
+                if (i > maxi) maxi = i;
+
+                return new Tuple<int, T>(i, result);
+            }).OrderBy(t => t.Item1).Select(t => t.Item2).ToList();
+            timer.Stop();
+            sw.Stop();
+
+            return results;
         }
-
-        #endregion
 
         public static void Wait()
         {

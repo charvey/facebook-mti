@@ -1,12 +1,8 @@
 ﻿using MappingTheInternet.HashFunctions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Timers;
 
 namespace MappingTheInternet.ReductionFunctions
 {
@@ -89,7 +85,7 @@ namespace MappingTheInternet.ReductionFunctions
             public string[] words;
         }
 
-        private string Filename = "Reductions_3.txt";
+        private readonly string Filename = "Reductions_3.txt";
 
         public override HashSet<string[]> ReduceNames(Dictionary<string, int> nodeNames)
         {
@@ -123,32 +119,8 @@ namespace MappingTheInternet.ReductionFunctions
 
                 Logger.Log(string.Format("The {0} groups have an average size {1} before pass {2}", beforeCount, beforeAverage, pass), Logger.TabChange.Increase);
 
-                Stopwatch sw = new Stopwatch();
-                Timer timer = new Timer(17);
-                int maxi = int.MinValue;
-                timer.Elapsed += new ElapsedEventHandler((o, e) =>
-                {
-                    double p = (100.0 * maxi) / groups.Length;
-                    var elapsed = sw.Elapsed;
-                    var elapsedString = elapsed.ToString(@"hh\:mm\:ss");
-                    var remaining = (maxi > 0) ? TimeSpan.FromSeconds(elapsed.TotalSeconds * ((100.0 - p) / p)) : TimeSpan.MaxValue;
-                    var remaingString = remaining == TimeSpan.MaxValue ? "N/A" : remaining.ToString(@"hh\:mm\:ss");
-
-                    Console.Title = string.Format("{0}% reduced this pass. Running Time: {1}, Remaining Time: {2}", p.ToString("00.0"), elapsedString, remaingString);
-                });
-
-                sw.Start();
-                timer.Start();
-                var partitioner = Partitioner.Create(Enumerable.Range(0, groups.Length));
-                var reductions = partitioner.AsParallel().Select(i => {
-                    var reduction = ReduceName(groups, i);
-
-                    if (i > maxi) maxi = i;
-
-                    return reduction;
-                }).Where(p => p != null).OrderBy(p => p.Item1).ToList();
-                timer.Stop();
-                sw.Stop();
+                var reductions = Logger.Batch(groups.Length, (i) => ReduceName(groups, i), "reduced this pass")
+                    .Where(p => p != null).OrderBy(p => p.Item1).ToList();
 
                 reduced = reductions.Count > 0;
 
@@ -200,7 +172,7 @@ namespace MappingTheInternet.ReductionFunctions
                     }
                 }
 
-                score /= ((a.Length + b.Length) / 2.0);
+                score /= (a.Length + b.Length) / 2.0;
 
                 if (score > .5)
                 {

@@ -2,11 +2,7 @@
 using MappingTheInternet.Graph;
 using MappingTheInternet.Models;
 using System;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Timers;
 
 namespace MappingTheInternet
 {
@@ -41,34 +37,7 @@ namespace MappingTheInternet
 
             double[][] predictions = new double[InputData.Paths.Length][];
 
-            Stopwatch sw = new Stopwatch();
-            Timer timer = new Timer(17);
-            int maxi = int.MinValue;
-            timer.Elapsed += new ElapsedEventHandler((o, e) =>
-            {
-                double p = (100.0 * maxi) / InputData.Paths.Length;
-                var elapsed = sw.Elapsed;
-                var elapsedString = elapsed.ToString(@"hh\:mm\:ss");
-                var remaining = (maxi > 0) ? TimeSpan.FromSeconds(elapsed.TotalSeconds * ((100.0 - p) / p)) : TimeSpan.MaxValue;
-                var remaingString = remaining == TimeSpan.MaxValue ? "N/A" : remaining.ToString(@"hh\:mm\:ss");
-
-                Console.Title = string.Format("{0}% of future predicted. Running Time: {1}, Remaining Time: {2}", p.ToString("00.0"), elapsedString, remaingString);
-
-            });
-
-            sw.Start();
-            timer.Start();
-            var partitioner = Partitioner.Create(Enumerable.Range(0, InputData.Paths.Length));
-            predictions = partitioner.AsParallel().Select(i =>
-            {
-                var prediction = PredictPath(i);
-
-                if (i > maxi) maxi = i;                
-
-                return new Tuple<int, double[]>(i, prediction);
-            }).OrderBy(p => p.Item1).Select(p => p.Item2).ToArray();
-            timer.Stop();
-            sw.Stop();
+            predictions = Logger.Batch(InputData.Paths.Length, (i) => PredictPath(i), "of future predicted").ToArray();
 
             Logger.Log("Future predicted", Logger.TabChange.Decrease);
 
