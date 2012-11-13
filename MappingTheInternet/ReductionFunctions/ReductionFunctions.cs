@@ -54,7 +54,7 @@ namespace MappingTheInternet.ReductionFunctions
 
                 reduced = false;
 
-                var reductions = Logger.Batch(groups.Length - 1, (i) => ReduceName(groups, i, 12.5 + 5 * pass), "reduced this pass")
+                var reductions = Logger.Batch(groups.Length - 1, (i) => ReduceName(groups, i, 10), "reduced this pass")
                     .Where(p => p != null).OrderBy(p => p.Item1).ToList();
 
                 reduced = reductions.Count > 0;

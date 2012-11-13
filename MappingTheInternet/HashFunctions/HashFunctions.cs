@@ -53,11 +53,17 @@ namespace MappingTheInternet.HashFunctions
 
             var cleanName = name.Replace(".", "").Replace(",", "").Replace("_", " ").ToUpper();
 
-            var basicWords = cleanName.Split().Select(sort).Distinct();
+            var words = cleanName.Split();
 
-            var extraWords = basicWords.Where(w => w.Contains('-')).SelectMany(w => w.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries));
+            var hypenedWords = words.Where(w => w.Contains('-'));
 
-            var distinctWords = basicWords.Concat(extraWords).Distinct();
+            var extraWords = hypenedWords.SelectMany(w => (new[] { w.Replace("-", "") }).Concat(w.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries)));
+
+            var allWords = words.Concat(extraWords);
+
+            var sortedWords = allWords.Select(sort);
+
+            var distinctWords = sortedWords.Distinct();
 
             var filteredWords = distinctWords.All(w => reservedWords.Contains(w))
                 ? distinctWords
@@ -67,9 +73,9 @@ namespace MappingTheInternet.HashFunctions
                 ? filteredWords.Where(w => w.Length > 2)
                 : filteredWords.Where(w => w.Length > 1);
 
-            var sortedWords = mainWords.OrderBy(s => s);
+            var orderedWords = mainWords.OrderBy(s => s);
 
-            var hashName = sortedWords.Aggregate(id, (s, c) => s + "|" + c);
+            var hashName = orderedWords.Aggregate(id, (s, c) => s + "|" + c);
 
             return hashName;
         }
