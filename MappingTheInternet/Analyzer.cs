@@ -212,12 +212,10 @@ namespace MappingTheInternet
             Logger.Log(commonWords.Length + " most common words: " + commonWords.Aggregate("", (c, s) => c + "," + s).Remove(0, 1));
 
             {
-                string[] lines;
                 var names = new SortedSet<string>[16];
 
-                lines = InputData.Paths;
                 names[0] = new SortedSet<string>();
-                foreach (var line in lines.Select(l => l.Split('|')))
+                foreach (var line in InputData.Paths.Select(l => l.Split('|')))
                 {
                     foreach (var name in line)
                     {
@@ -320,7 +318,7 @@ namespace MappingTheInternet
 
                         for (int t = 0; t < InputData.TrainingSets.Length; t++)
                         {
-                            if (edge.Value.Schedule[t] == double.PositiveInfinity)
+                            if (double.IsPositiveInfinity(edge.Value.Schedule[t]))
                             {
                                 add(path[i - 1].Value.Name, t, path[i].Value.Name);
                             }

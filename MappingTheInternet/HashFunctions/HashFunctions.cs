@@ -10,15 +10,13 @@ namespace MappingTheInternet.HashFunctions
 
         protected static char[] SpecialSymbols = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".ToCharArray();
 
-        protected static string sort(string word)
+        protected static string Sort(string word)
         {
             var chars = word.ToCharArray();
 
-            char t;
-            int min;
             for (int i = 0; i < chars.Length; i++)
             {
-                min = i;
+                int min = i;
                 for (int j = i + 1; j < chars.Length; j++)
                 {
                     if (chars[j] < chars[min])
@@ -26,7 +24,7 @@ namespace MappingTheInternet.HashFunctions
                         min = j;
                     }
                 }
-                t = chars[i];
+                char t = chars[i];
                 chars[i] = chars[min];
                 chars[min] = t;
             }
@@ -39,7 +37,7 @@ namespace MappingTheInternet.HashFunctions
 
     public class HashFunction8 : HashFunction
     {
-        private static IEnumerable<string> reservedWords = (new[] { "INC", "LTD", "LLC", "SERVICES", "NETWORK", "AS", "SYSTEM", "AUTONOMOUS" }).Select(sort);
+        protected static readonly IEnumerable<string> ReservedWords = (new[] { "INC", "LTD", "LLC", "SERVICES", "NETWORK", "AS", "SYSTEM", "AUTONOMOUS" }).Select(Sort);
 
         public override string HashName(string name)
         {
@@ -61,17 +59,19 @@ namespace MappingTheInternet.HashFunctions
 
             var allWords = words.Concat(extraWords);
 
-            var sortedWords = allWords.Select(sort);
+            var sortedWords = allWords.Select(Sort);
 
-            var distinctWords = sortedWords.Distinct();
+            var distinctWords = sortedWords.Distinct().ToList();
 
-            var filteredWords = distinctWords.All(w => reservedWords.Contains(w))
-                ? distinctWords
-                : distinctWords.Except(reservedWords);
+            var filteredWords = distinctWords.All(w => ReservedWords.Contains(w))
+                ? distinctWords.ToList()
+                : distinctWords.Except(ReservedWords).ToList();
 
             var mainWords = filteredWords.Any(w => w.Length > 2)
-                ? filteredWords.Where(w => w.Length > 2)
-                : filteredWords.Where(w => w.Length > 1);
+                                ? filteredWords.Where(w => w.Length > 2)
+                                : filteredWords.Any(w => w.Length > 1)
+                                      ? filteredWords.Where(w => w.Length > 1)
+                                      : filteredWords.Where(w => w.Length > 0);
 
             var orderedWords = mainWords.OrderBy(s => s);
 

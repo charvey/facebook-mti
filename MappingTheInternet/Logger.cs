@@ -9,7 +9,7 @@ namespace MappingTheInternet
 {
     public static class Logger
     {
-        private static int TabSize = 0;
+        internal static int TabSize = 0;
         private const string Tab = "  ";
 
         public enum TabChange
@@ -40,8 +40,8 @@ namespace MappingTheInternet
 
         public static List<T> Batch<T>(int total, Func<int,T> operation, string text)
         {
-            Stopwatch sw = new Stopwatch();
-            Timer timer = new Timer(17);
+            var sw = new Stopwatch();
+            var timer = new Timer(1000.0/60);
             int maxi = int.MinValue;
             timer.Elapsed += new ElapsedEventHandler((o, e) =>
             {

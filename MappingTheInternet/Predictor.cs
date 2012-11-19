@@ -35,9 +35,7 @@ namespace MappingTheInternet
         {
             Logger.Log("Predicting future", Logger.TabChange.Increase);
 
-            double[][] predictions = new double[InputData.Paths.Length][];
-
-            predictions = Logger.Batch(InputData.Paths.Length, (i) => PredictPath(i), "of future predicted").ToArray();
+            double[][] predictions = Logger.Batch(InputData.Paths.Length, i => PredictPath(i), "of future predicted").ToArray();
 
             Logger.Log("Future predicted", Logger.TabChange.Decrease);
 
@@ -49,9 +47,9 @@ namespace MappingTheInternet
             //TODO determine health of path
 
             var path = ToPath(InputData.Paths[i]);
-            double[] pastRecord = Enumerable.Range(trainStart, trainEnd).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).ToArray();
+            double[] pastRecord = Enumerable.Range(trainStart, trainEnd).Select(t => IsOptimumPath(path, t) ? 1.0 : 0.0).ToArray(),
+                     result = new double[predictEnd - predictStart + 1];
             double average = pastRecord.Average();
-            double[] result = new double[predictEnd - predictStart + 1];
 
             for (int j = 0; j <= predictEnd - predictStart; j++)
             {
@@ -68,7 +66,7 @@ namespace MappingTheInternet
 
         public bool IsOptimumPath(Node<ASNode, ConnectionSchedule>[] path, int t)
         {
-            Func<ConnectionSchedule, double> weight = (e) => e.Schedule[t];
+            Func<ConnectionSchedule, double> weight = e => e.Schedule[t];
             return Graph.PathLength(path, weight) <= Graph.OptimumLength(path.First(), path.Last(), weight);
         }
     }

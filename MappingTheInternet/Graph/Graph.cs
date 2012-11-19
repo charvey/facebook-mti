@@ -34,28 +34,14 @@ namespace MappingTheInternet.Graph
             double length = 0;
 
             var current = path.First();
-            var remaining = path.Skip(1);
-            var next = remaining.First();
+            var remaining = path.Skip(1).ToArray();
+            var next = remaining[0];
 
-            if (current.Edges.ContainsKey(next))
-            {
-                var dist = getWeight(current.Edges[next].Value);
+            length = current.Edges.ContainsKey(next)
+                         ? getWeight(current.Edges[next].Value)
+                         : double.PositiveInfinity;
 
-                if (dist >= 0)
-                {
-                    length = dist;
-                }
-                else
-                {
-                    length = double.PositiveInfinity;
-                }
-            }
-            else
-            {
-                length = double.PositiveInfinity;
-            }
-
-            return length + PathLength(remaining.ToArray(), getWeight);
+            return length + PathLength(remaining, getWeight);
         }
 
         public double OptimumLength(Node<TNode, TEdge> from, Node<TNode, TEdge> to, Func<TEdge, double> getWeight)
@@ -64,7 +50,7 @@ namespace MappingTheInternet.Graph
             var unvisitedNodesMap = new Dictionary<Node<TNode, TEdge>, SearchNode>();
             var visitedNodes = new Dictionary<Node<TNode, TEdge>, double>();
 
-            SearchNode current = new SearchNode { Node = from, Distance = 0 };
+            var current = new SearchNode { Node = from, Distance = 0 };
 
             unvisitedNodes.AddFirst(current);
             unvisitedNodesMap[from] = current;

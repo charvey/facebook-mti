@@ -64,7 +64,7 @@ namespace MappingTheInternet
             Logger.Log("Prediction made", Logger.TabChange.Decrease);
         }
 
-        private static double EstimateScore()
+        private static void EstimateScore()
         {
             Logger.Log("Estimating score", Logger.TabChange.Increase);
 
@@ -85,8 +85,6 @@ namespace MappingTheInternet
             Logger.Log("Score calculated", Logger.TabChange.Decrease);
 
             Logger.Log("Score estimated to be: " + score, Logger.TabChange.Decrease);
-
-            return score;
         }
     }
 }

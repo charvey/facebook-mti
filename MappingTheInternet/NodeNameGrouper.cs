@@ -1,5 +1,4 @@
 ﻿using MappingTheInternet.Data;
-using MappingTheInternet.HashFunctions;
 using MappingTheInternet.ReductionFunctions;
 using System;
 using System.Collections.Generic;
@@ -21,7 +20,7 @@ namespace MappingTheInternet
             Logger.Log("Loading names", Logger.TabChange.Increase);
 
             var nodeNames = new Dictionary<string, int>();
-            Func<string, int> add = (n) => nodeNames[n] = (nodeNames.ContainsKey(n) ? nodeNames[n] : 0) + 1;
+            Func<string, int> add = n => nodeNames[n] = (nodeNames.ContainsKey(n) ? nodeNames[n] : 0) + 1;
 
             foreach (var trainingSet in InputData.TrainingSets)
             {
